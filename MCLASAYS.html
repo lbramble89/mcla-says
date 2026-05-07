@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCLA Says!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --mcla-blue: #1a6fb0;
+            --mcla-dark: #0d4a7a;
+            --mcla-light: #5eb3e4;
+            --mcla-accent: #7ecdf4;
+            --bright-orange: #ff9f43;
+            --bright-green: #26de81;
+            --bright-pink: #fd79a8;
+            --bright-yellow: #ffeaa7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--mcla-dark) 0%, var(--mcla-blue) 50%, #1a5a8a 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            border: 30px solid rgba(94, 179, 228, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -150px;
+            left: -150px;
+            width: 500px;
+            height: 500px;
+            border: 40px solid rgba(94, 179, 228, 0.15);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 30px;
+            background: rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo-small {
+            height: 50px;
+            margin-right: 20px;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .mode-btn.survey {
+            background: linear-gradient(135deg, var(--bright-orange) 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .mode-btn.admin {
+            background: linear-gradient(135deg, var(--bright-pink) 0%, #e84393 100%);
+            color: white;
+        }
+
+        .mode-btn.game {
+            background: linear-gradient(135deg, var(--bright-green) 0%, #20bf6b 100%);
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .mode-btn.active {
+            box-shadow: 0 0 0 4px white;
+        }
+
+        .admin-only {
+            display: none;
+        }
+
+        .admin-only.visible {
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .setup-banner {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .setup-banner h3 {
+            margin-bottom: 10px;
+        }
+
+        .setup-banner input {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+
+        .setup-banner button {
+            margin-top: 10px;
+            padding: 10px 25px;
+            background: white;
+            color: #ee5a5a;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .connection-status {
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .connection-status.connected {
+            background: rgba(38, 222, 129, 0.2);
+            border: 2px solid var(--bright-green);
+            color: var(--bright-green);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .survey-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .survey-header img {
+            max-width: 250px;
+            margin-bottom: 20px;
+        }
+
+        .survey-header h1 {
+            font-size: 3em;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .survey-header h1 span {
+            color: var(--bright-yellow);
+        }
+
+        .survey-header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+        }
+
+        .question-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+
+        .question-card:hover {
+            border-color: var(--mcla-light);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .question-card h3 {
+            color: var(--bright-yellow);
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-card p {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .question-card input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .question-card input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .question-card input:focus {
+            outline: none;
+            border-color: var(--bright-orange);
+            background: rgba(0,0,0,0.4);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, var(--bright-orange) 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(255,159,67,0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(38, 222, 129, 0.2);
+            border: 3px solid var(--bright-green);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .success-message h2 {
+            color: var(--bright-green);
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .success-message p {
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .success-message .checkmark {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .admin-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .admin-section h2 {
+            color: var(--bright-pink);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+        }
+
+        .admin-btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn.primary {
+            background: linear-gradient(135deg, var(--bright-pink) 0%, #e84393 100%);
+            color: white;
+        }
+
+        .admin-btn.secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .admin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--bright-yellow);
+        }
+
+        .stat-card .label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+        }
+
+        .question-editor {
+            margin-bottom: 15px;
+        }
+
+        .question-editor label {
+            display: block;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .question-editor input {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .question-editor input:focus {
+            outline: none;
+            border-color: var(--bright-yellow);
+        }
+
+        .results-preview {
+            margin-top: 20px;
+        }
+
+        .result-question {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .result-question h4 {
+            color: var(--bright-yellow);
+            margin-bottom: 15px;
+        }
+
+        .result-answer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .result-answer .answer-text {
+            flex: 1;
+        }
+
+        .result-answer .answer-count {
+            background: var(--bright-orange);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .instructions {
+            background: rgba(94, 179, 228, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--mcla-light);
+        }
+
+        .instructions h3 {
+            color: var(--mcla-light);
+            margin-bottom: 10px;
+        }
+
+        .instructions ol, .instructions ul {
+            margin-left: 20px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .respondents-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .respondent-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .respondent-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .game-container {
+            min-height: calc(100vh - 150px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-logo {
+            max-width: 200px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        .game-title {
+            font-size: 3.5em;
+            color: white;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.4);
+            margin-bottom: 10px;
+        }
+
+        .game-title span {
+            color: var(--bright-yellow);
+        }
+
+        .question-display {
+            font-size: 1.8em;
+            color: white;
+            text-align: center;
+            max-width: 800px;
+            min-height: 60px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 3px solid var(--mcla-light);
+        }
+
+        .game-board {
+            background: linear-gradient(180deg, var(--mcla-blue) 0%, var(--mcla-dark) 100%);
+            border: 8px solid var(--mcla-light);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(94, 179, 228, 0.1);
+            margin-top: 30px;
+        }
+
+        .answer-row {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            border: 3px solid var(--mcla-light);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .answer-row:hover {
+            border-color: var(--bright-yellow);
+            transform: scale(1.01);
+        }
+
+        .answer-row.revealed {
+            background: linear-gradient(180deg, rgba(38, 222, 129, 0.3) 0%, rgba(38, 222, 129, 0.1) 100%);
+            border-color: var(--bright-green);
+        }
+
+        .answer-number {
+            background: var(--bright-orange);
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 15px 20px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .answer-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .answer-text-display {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .answer-hidden {
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.2);
+            padding: 5px 20px;
+            border-radius: 5px;
+            font-size: 1.3em;
+        }
+
+        .answer-points {
+            background: var(--bright-yellow);
+            color: var(--mcla-dark);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .game-btn.prev {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .game-btn.reveal {
+            background: linear-gradient(135deg, var(--bright-green) 0%, #20bf6b 100%);
+            color: white;
+        }
+
+        .game-btn.reveal-all {
+            background: linear-gradient(135deg, var(--bright-pink) 0%, #e84393 100%);
+            color: white;
+        }
+
+        .game-btn.next {
+            background: linear-gradient(135deg, var(--bright-orange) 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .game-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .q-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .q-dot:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .q-dot.active {
+            background: var(--bright-yellow);
+            color: var(--mcla-dark);
+            border-color: var(--bright-yellow);
+        }
+
+        .q-dot.completed {
+            background: var(--bright-green);
+            border-color: var(--bright-green);
+        }
+
+        @keyframes reveal {
+            0% { transform: rotateX(90deg); opacity: 0; }
+            100% { transform: rotateX(0deg); opacity: 1; }
+        }
+
+        .answer-row.revealing {
+            animation: reveal 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .answer-row.revealed .answer-points {
+            animation: pulse 0.5s ease-out;
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .game-title { font-size: 2em; }
+            .question-display { font-size: 1.3em; padding: 15px 20px; }
+            .answer-text-display { font-size: 1em; }
+            .game-board { padding: 15px; }
+            .answer-number { padding: 10px 15px; font-size: 1.2em; min-width: 45px; }
+            .answer-content { padding: 10px 15px; }
+            .answer-points { padding: 8px 15px; font-size: 1em; }
+            .survey-header h1 { font-size: 2em; }
+            .logo-small { display: none; }
+        }
+
+        .name-input-section {
+            background: rgba(255,159,67,0.2);
+            border: 3px solid var(--bright-orange);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .name-input-section h3 {
+            color: var(--bright-orange);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .name-input-section input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid var(--bright-orange);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            text-align: center;
+        }
+
+        .name-input-section input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .swoosh {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(180deg, transparent 0%, rgba(94, 179, 228, 0.1) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .admin-info-box {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid var(--bright-yellow);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .admin-info-box code {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="swoosh"></div>
+    
+    <div class="mode-selector">
+        <img src="https://www.mdlab.org/wp-content/uploads/2023/05/MCLA-Logo.png" alt="MCLA Logo" class="logo-small" onerror="this.style.display='none'">
+        <button class="mode-btn survey active" onclick="switchMode('survey')">📝 Take Survey</button>
+        <button class="mode-btn admin admin-only" onclick="switchMode('admin')">⚙️ Admin Panel</button>
+        <button class="mode-btn game admin-only" onclick="switchMode('game')">🎮 Game Show</button>
+    </div>
+
+    <!-- Survey Panel -->
+    <div id="survey-panel" class="panel active">
+        <div class="container">
+            <div id="survey-setup-banner" class="setup-banner" style="display:none;">
+                <h3>⚠️ Survey Not Connected</h3>
+                <p>Ask your game organizer for the link, or if you're the organizer, set up the Google Sheet URL in the Admin Panel.</p>
+            </div>
+
+            <div class="survey-header">
+                <h1>🎯 MCLA <span>Says!</span></h1>
+                <p>Answer each question with what you think MOST people will say!</p>
+            </div>
+
+            <div class="name-input-section">
+                <h3>👤 Your Name</h3>
+                <input type="text" id="respondent-name" placeholder="Enter your name...">
+            </div>
+
+            <div id="survey-questions"></div>
+
+            <button class="submit-btn" id="submit-btn" onclick="submitSurvey()">Submit My Answers! 🚀</button>
+
+            <div class="success-message" id="success-message">
+                <div class="checkmark">✅</div>
+                <h2>Thank You!</h2>
+                <p>Your answers have been submitted successfully.<br>Get ready to play at the meeting!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="panel">
+        <div class="container">
+            <div class="admin-info-box">
+                🔒 <strong>Admin Mode Active</strong> — Your secret URL: <code id="admin-url"></code>
+            </div>
+
+            <div class="admin-section">
+                <h2>🔗 Google Sheets Connection</h2>
+                <div class="instructions">
+                    <h3>Setup Instructions</h3>
+                    <ol>
+                        <li>Create a Google Sheet and set up Apps Script (see documentation)</li>
+                        <li>Paste your Web App URL below</li>
+                        <li>Click "Save & Connect" to test the connection</li>
+                    </ol>
+                </div>
+                <input type="text" id="sheets-url" placeholder="Paste your Google Apps Script Web App URL here..." style="width:100%; padding:12px; font-size:14px; border-radius:8px; border:2px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-bottom:15px;">
+                <button class="admin-btn primary" onclick="saveAndConnect()">💾 Save & Connect</button>
+                <button class="admin-btn secondary" onclick="testConnection()">🔄 Test Connection</button>
+                <div id="connection-status" class="connection-status disconnected" style="margin-top:15px;">
+                    ❌ Not Connected
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>🔑 Admin Access Settings</h2>
+                <p style="color: rgba(255,255,255,0.7); margin-bottom:15px;">Change your secret admin code (default: <code>mcla2024</code>)</p>
+                <input type="text" id="admin-code-input" placeholder="Enter new secret code..." style="width:100%; max-width:300px; padding:12px; font-size:14px; border-radius:8px; border:2px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-bottom:15px;">
+                <br>
+                <button class="admin-btn primary" onclick="saveAdminCode()">💾 Save New Code</button>
+            </div>
+
+            <div class="admin-section">
+                <h2>📊 Response Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="number" id="total-responses">0</div>
+                        <div class="label">Total Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="total-questions">10</div>
+                        <div class="label">Questions</div>
+                    </div>
+                </div>
+                <button class="admin-btn primary" onclick="fetchResponses()">🔄 Refresh Responses</button>
+                
+                <div class="respondents-list" id="respondents-list" style="display:none;">
+                    <strong>Respondents:</strong>
+                    <div id="respondents-names"></div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>✏️ Edit Questions</h2>
+                <p style="color: rgba(255,255,255,0.7); margin-bottom:15px;">⚠️ Only change questions BEFORE sending out the survey!</p>
+                <div id="question-editors"></div>
+                <button class="admin-btn primary" onclick="saveQuestions()">💾 Save Questions</button>
+                <button class="admin-btn secondary" onclick="resetQuestions()">🔄 Reset to Defaults</button>
+            </div>
+
+            <div class="admin-section">
+                <h2>📋 Current Results Preview</h2>
+                <div id="results-preview" class="results-preview">
+                    <p style="color: rgba(255,255,255,0.7);">No responses yet. Click "Refresh Responses" after people submit.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Panel -->
+    <div id="game-panel" class="panel">
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        <div class="game-container">
+            <div class="game-header">
+                <div class="game-title">🎯 MCLA <span>Says!</span> 🎯</div>
+                <div class="question-display" id="game-question">Loading...</div>
+            </div>
+
+            <div class="game-board" id="game-board"></div>
+
+            <div class="game-controls">
+                <button class="game-btn prev" id="prev-btn" onclick="prevQuestion()">⬅️ Previous</button>
+                <button class="game-btn reveal" onclick="revealNext()">👆 Reveal Next</button>
+                <button class="game-btn reveal-all" onclick="revealAll()">🎉 Reveal All</button>
+                <button class="game-btn next" id="next-btn" onclick="nextQuestion()">Next ➡️</button>
+            </div>
+
+            <div class="question-nav" id="question-nav"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // ADMIN ACCESS CONFIGURATION
+        // ============================================
+        // Change this to your own secret code!
+        const DEFAULT_ADMIN_CODE = 'mcla2024';
+        
+        let ADMIN_CODE = localStorage.getItem('mclaSays_adminCode') || DEFAULT_ADMIN_CODE;
+        let SHEETS_URL = localStorage.getItem('mclaSays_sheetsUrl') || '';
+        
+        // Check if admin mode should be enabled
+        function checkAdminAccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const modeParam = urlParams.get('mode');
+            
+            if (modeParam === ADMIN_CODE) {
+                // Show admin buttons
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.classList.add('visible');
+                });
+                // Show admin URL
+                document.getElementById('admin-url').textContent = 
+                    window.location.origin + window.location.pathname + '?mode=' + ADMIN_CODE;
+                document.getElementById('admin-code-input').value = ADMIN_CODE;
+                return true;
+            }
+            return false;
+        }
+
+        function saveAdminCode() {
+            const newCode = document.getElementById('admin-code-input').value.trim();
+            if (!newCode) {
+                alert('Please enter a code');
+                return;
+            }
+            if (newCode.length < 4) {
+                alert('Code should be at least 4 characters');
+                return;
+            }
+            ADMIN_CODE = newCode;
+            localStorage.setItem('mclaSays_adminCode', ADMIN_CODE);
+            
+            // Update displayed URL
+            document.getElementById('admin-url').textContent = 
+                window.location.origin + window.location.pathname + '?mode=' + ADMIN_CODE;
+            
+            alert('Admin code saved! Your new admin URL is:\n' + 
+                  window.location.origin + window.location.pathname + '?mode=' + ADMIN_CODE);
+        }
+
+        // Default questions
+        const defaultQuestions = [
+            "Name something you'd find in a break room",
+            "Name a reason someone might be late to work",
+            "Name something people do during long meetings",
+            "Name a popular lunch spot near the office",
+            "Name something that makes a Monday better",
+            "Name an excuse for missing a deadline",
+            "Name something you'd find on someone's desk",
+            "Name a popular office snack",
+            "Name something people complain about at work",
+            "Name a dream vacation destination"
+        ];
+
+        // State
+        let questions = JSON.parse(localStorage.getItem('mclaSays_questions')) || [...defaultQuestions];
+        let responses = [];
+        let currentGameQuestion = 0;
+        let revealedAnswers = [];
+        let aggregatedResults = [];
+        let isConnected = false;
+        let isAdmin = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            isAdmin = checkAdminAccess();
+            renderSurvey();
+            renderAdminPanel();
+            
+            if (SHEETS_URL) {
+                document.getElementById('sheets-url').value = SHEETS_URL;
+                testConnection();
+            } else if (!isAdmin) {
+                // Only show warning to non-admins if not connected
+                // document.getElementById('survey-setup-banner').style.display = 'block';
+            }
+        });
+
+        // Mode switching
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            
+            document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+            document.getElementById(`${mode}-panel`).classList.add('active');
+
+            if (mode === 'game') {
+                initGame();
+            }
+            if (mode === 'admin') {
+                if (SHEETS_URL) fetchResponses();
+            }
+        }
+
+        // Connection Functions
+        function saveAndConnect() {
+            const url = document.getElementById('sheets-url').value.trim();
+            if (!url) {
+                alert('Please enter a Google Apps Script URL');
+                return;
+            }
+            SHEETS_URL = url;
+            localStorage.setItem('mclaSays_sheetsUrl', SHEETS_URL);
+            testConnection();
+        }
+
+        async function testConnection() {
+            if (!SHEETS_URL) {
+                updateConnectionStatus(false);
+                return;
+            }
+
+            const statusEl = document.getElementById('connection-status');
+            statusEl.innerHTML = '<span class="loading-spinner"></span> Testing connection...';
+            statusEl.className = 'connection-status';
+
+            try {
+                const response = await fetch(SHEETS_URL);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                updateConnectionStatus(true);
+                responses = data.responses || [];
+                updateStats();
+                document.getElementById('survey-setup-banner').style.display = 'none';
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateConnectionStatus(false);
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            isConnected = connected;
+            const statusEl = document.getElementById('connection-status');
+            
+            if (connected) {
+                statusEl.innerHTML = '✅ Connected to Google Sheets';
+                statusEl.className = 'connection-status connected';
+                document.getElementById('survey-setup-banner').style.display = 'none';
+            } else {
+                statusEl.innerHTML = '❌ Not Connected - Check your URL';
+                statusEl.className = 'connection-status disconnected';
+            }
+        }
+
+        // Survey Functions
+        function renderSurvey() {
+            const container = document.getElementById('survey-questions');
+            container.innerHTML = questions.map((q, i) => `
+                <div class="question-card">
+                    <h3>Question ${i + 1}</h3>
+                    <p>${q}</p>
+                    <input type="text" id="answer-${i}" placeholder="Type your answer..." maxlength="50">
+                </div>
+            `).join('');
+        }
+
+        async function submitSurvey() {
+            if (!SHEETS_URL) {
+                alert('Survey is not connected. Please contact the game organizer.');
+                return;
+            }
+
+            const name = document.getElementById('respondent-name').value.trim();
+            if (!name) {
+                alert('Please enter your name!');
+                return;
+            }
+
+            const answers = [];
+            for (let i = 0; i < questions.length; i++) {
+                const answer = document.getElementById(`answer-${i}`).value.trim();
+                if (!answer) {
+                    alert(`Please answer question ${i + 1}!`);
+                    return;
+                }
+                answers.push(answer);
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+
+            try {
+                const response = await fetch(SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, answers })
+                });
+
+                document.getElementById('success-message').style.display = 'block';
+                submitBtn.style.display = 'none';
+                document.querySelector('.name-input-section').style.display = 'none';
+                document.getElementById('survey-questions').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Error submitting. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit My Answers! 🚀';
+            }
+        }
+
+        // Admin Functions
+        function renderAdminPanel() {
+            const container = document.getElementById('question-editors');
+            container.innerHTML = questions.map((q, i) => `
+                <div class="question-editor">
+                    <label>Question ${i + 1}</label>
+                    <input type="text" id="q-edit-${i}" value="${q}" maxlength="100">
+                </div>
+            `).join('');
+        }
+
+        function saveQuestions() {
+            for (let i = 0; i < questions.length; i++) {
+                questions[i] = document.getElementById(`q-edit-${i}`).value.trim() || defaultQuestions[i];
+            }
+            localStorage.setItem('mclaSays_questions', JSON.stringify(questions));
+            renderSurvey();
+            alert('Questions saved!');
+        }
+
+        function resetQuestions() {
+            if (confirm('Reset all questions to defaults?')) {
+                questions = [...defaultQuestions];
+                localStorage.setItem('mclaSays_questions', JSON.stringify(questions));
+                renderAdminPanel();
+                renderSurvey();
+                alert('Questions reset to defaults!');
+            }
+        }
+
+        async function fetchResponses() {
+            if (!SHEETS_URL) {
+                alert('Please set up Google Sheets connection first');
+                return;
+            }
+
+            try {
+                const response = await fetch(SHEETS_URL);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                responses = data.responses || [];
+                updateStats();
+                renderResultsPreview();
+                renderRespondentsList();
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('Error fetching responses: ' + error.message);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('total-responses').textContent = responses.length;
+            document.getElementById('total-questions').textContent = questions.length;
+        }
+
+        function renderRespondentsList() {
+            if (responses.length === 0) {
+                document.getElementById('respondents-list').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('respondents-list').style.display = 'block';
+            document.getElementById('respondents-names').innerHTML = responses.map(r => `
+                <div class="respondent-item">
+                    <span>${r.name}</span>
+                    <span style="color: rgba(255,255,255,0.5); font-size: 0.9em;">
+                        ${new Date(r.timestamp).toLocaleDateString()}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function aggregateAnswers() {
+            aggregatedResults = questions.map((q, qIndex) => {
+                const answerCounts = {};
+                
+                responses.forEach(response => {
+                    if (response.answers && response.answers[qIndex]) {
+                        const answer = String(response.answers[qIndex]).toLowerCase().trim();
+                        const normalized = answer.replace(/[^a-z0-9 ]/g, '');
+                        answerCounts[normalized] = answerCounts[normalized] || { 
+                            original: response.answers[qIndex], 
+                            count: 0 
+                        };
+                        answerCounts[normalized].count++;
+                    }
+                });
+
+                const sorted = Object.entries(answerCounts)
+                    .sort((a, b) => b[1].count - a[1].count)
+                    .slice(0, 8)
+                    .map(([key, val]) => ({
+                        answer: val.original,
+                        points: val.count
+                    }));
+
+                return { question: q, answers: sorted };
+            });
+        }
+
+        function renderResultsPreview() {
+            if (responses.length === 0) {
+                document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
+                return;
+            }
+
+            aggregateAnswers();
+
+            document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, i) => `
+                <div class="result-question">
+                    <h4>Q${i + 1}: ${q.question}</h4>
+                    ${q.answers.length > 0 ? q.answers.map(a => `
+                        <div class="result-answer">
+                            <span class="answer-text">${a.answer}</span>
+                            <span class="answer-count">${a.points} pts</span>
+                        </div>
+                    `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
+                </div>
+            `).join('');
+        }
+
+        // Game Functions
+        function initGame() {
+            if (responses.length === 0) {
+                document.getElementById('game-question').textContent = 'No responses loaded! Go to Admin Panel and click "Refresh Responses"';
+                document.getElementById('game-board').innerHTML = '<p style="text-align: center; padding: 40px; color: rgba(255,255,255,0.7);">Load responses in Admin Panel first</p>';
+                return;
+            }
+
+            aggregateAnswers();
+            currentGameQuestion = 0;
+            renderGameQuestion();
+            renderQuestionNav();
+        }
+
+        function renderGameQuestion() {
+            const q = aggregatedResults[currentGameQuestion];
+            revealedAnswers = new Array(q.answers.length).fill(false);
+
+            document.getElementById('game-question').textContent = q.question;
+            
+            const board = document.getElementById('game-board');
+            board.innerHTML = q.answers.map((a, i) => `
+                <div class="answer-row" id="answer-row-${i}" onclick="revealAnswer(${i})">
+                    <div class="answer-number">${i + 1}</div>
+                    <div class="answer-content">
+                        <span class="answer-text-display">
+                            <span class="answer-hidden" id="answer-text-${i}">████████</span>
+                        </span>
+                        <span class="answer-points" id="answer-points-${i}" style="visibility: hidden;">${a.points}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            for (let i = q.answers.length; i < 8; i++) {
+                board.innerHTML += `
+                    <div class="answer-row" style="opacity: 0.3; cursor: default;">
+                        <div class="answer-number">${i + 1}</div>
+                        <div class="answer-content">
+                            <span class="answer-text-display"><span class="answer-hidden">—</span></span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateNavButtons();
+            updateQuestionNav();
+        }
+
+        function revealAnswer(index) {
+            if (revealedAnswers[index]) return;
+            const q = aggregatedResults[currentGameQuestion];
+            if (index >= q.answers.length) return;
+
+            revealedAnswers[index] = true;
+            
+            const row = document.getElementById(`answer-row-${index}`);
+            const textEl = document.getElementById(`answer-text-${index}`);
+            const pointsEl = document.getElementById(`answer-points-${index}`);
+
+            row.classList.add('revealing');
+            setTimeout(() => {
+                row.classList.remove('revealing');
+                row.classList.add('revealed');
+                textEl.classList.remove('answer-hidden');
+                textEl.textContent = q.answers[index].answer.toUpperCase();
+                pointsEl.style.visibility = 'visible';
+            }, 250);
+
+            playRevealSound();
+        }
+
+        function revealNext() {
+            const nextIndex = revealedAnswers.findIndex(r => !r);
+            if (nextIndex !== -1) revealAnswer(nextIndex);
+        }
+
+        function revealAll() {
+            const q = aggregatedResults[currentGameQuestion];
+            q.answers.forEach((_, i) => setTimeout(() => revealAnswer(i), i * 300));
+        }
+
+        function nextQuestion() {
+            if (currentGameQuestion < aggregatedResults.length - 1) {
+                currentGameQuestion++;
+                renderGameQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentGameQuestion > 0) {
+                currentGameQuestion--;
+                renderGameQuestion();
+            }
+        }
+
+        function goToQuestion(index) {
+            currentGameQuestion = index;
+            renderGameQuestion();
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prev-btn').disabled = currentGameQuestion === 0;
+            document.getElementById('next-btn').disabled = currentGameQuestion === aggregatedResults.length - 1;
+        }
+
+        function renderQuestionNav() {
+            document.getElementById('question-nav').innerHTML = aggregatedResults.map((_, i) => `
+                <div class="q-dot ${i === currentGameQuestion ? 'active' : ''}" onclick="goToQuestion(${i})">${i + 1}</div>
+            `).join('');
+        }
+
+        function updateQuestionNav() {
+            document.querySelectorAll('.q-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentGameQuestion);
+            });
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function playRevealSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>
