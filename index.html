@@ -1380,7 +1380,41 @@
         // CONFIGURATION
         // ============================================
         const DEFAULT_ADMIN_CODE = 'mcla2024';
+      function setupMergeClickHandlers() {
+    const resultsContainer = document.getElementById('results-preview');
+    
+    resultsContainer.addEventListener('click', function(e) {
+        // Find the clicked answer element
+        const answerEl = e.target.closest('.result-answer');
+        if (answerEl) {
+            const qIdx = parseInt(answerEl.dataset.question);
+            const aIdx = parseInt(answerEl.dataset.answer);
+            const key = aggregatedResults[qIdx].answers[aIdx].key;
+            
+            console.log('Clicked Q' + qIdx + ', Answer: ' + key);
+            toggleMergeSelection(qIdx, key);
+            return;
+        }
         
+        // Find merge button
+        const mergeBtn = e.target.closest('.merge-btn');
+        if (mergeBtn) {
+            const qIdx = parseInt(mergeBtn.dataset.question);
+            mergeSelected(qIdx);
+            return;
+        }
+        
+        // Find clear button
+        const clearBtn = e.target.closest('.clear-btn');
+        if (clearBtn) {
+            const qIdx = parseInt(clearBtn.dataset.question);
+            clearSelection(qIdx);
+            return;
+        }
+    });
+    
+    console.log('Merge click handlers set up!');
+}  
         let ADMIN_CODE = localStorage.getItem('mclaSays_adminCode') || DEFAULT_ADMIN_CODE;
         let SHEETS_URL = localStorage.getItem('mclaSays_sheetsUrl') || 'https://script.google.com/macros/s/AKfycbw0A8ZuM5ZirmOmMCQb1ctv9qERhhZVMitQW9_7zX1LoKxcgMgGNmG0rknAHx4D2LQMYw/exec';
         
@@ -1417,21 +1451,22 @@
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async function() {
-            isAdmin = checkAdminAccess();
-            
-            if (SHEETS_URL) {
-                document.getElementById('sheets-url').value = SHEETS_URL;
-                await loadQuestionsFromServer();
-            } else {
-                hideLoading();
-                if (!isAdmin) {
-                    document.getElementById('survey-setup-banner').style.display = 'block';
-                }
-            }
-            
-            renderSurvey();
-            renderAdminPanel();
-        });
+    isAdmin = checkAdminAccess();
+    
+    if (SHEETS_URL) {
+        document.getElementById('sheets-url').value = SHEETS_URL;
+        await loadQuestionsFromServer();
+    } else {
+        hideLoading();
+        if (!isAdmin) {
+            document.getElementById('survey-setup-banner').style.display = 'block';
+        }
+    }
+    
+    renderSurvey();
+    renderAdminPanel();
+    setupMergeClickHandlers();  // ADD THIS LINE
+});
 
         function hideLoading() {
             document.getElementById('loading-overlay').classList.add('hidden');
@@ -2113,30 +2148,6 @@
             </div>
         </div>
     `).join('');
-
-    // Add click handlers after rendering
-    document.querySelectorAll('.result-answer').forEach(el => {
-        el.addEventListener('click', function() {
-            const qIdx = parseInt(this.dataset.question);
-            const aIdx = parseInt(this.dataset.answer);
-            const key = aggregatedResults[qIdx].answers[aIdx].key;
-            toggleMergeSelection(qIdx, key);
-        });
-    });
-
-    document.querySelectorAll('.merge-btn').forEach(el => {
-        el.addEventListener('click', function() {
-            const qIdx = parseInt(this.dataset.question);
-            mergeSelected(qIdx);
-        });
-    });
-
-    document.querySelectorAll('.clear-btn').forEach(el => {
-        el.addEventListener('click', function() {
-            const qIdx = parseInt(this.dataset.question);
-            clearSelection(qIdx);
-        });
-    });
 }
 
         function isSelectedForMerge(qIdx, key) {
