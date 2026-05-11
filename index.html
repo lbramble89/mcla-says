@@ -613,6 +613,7 @@
             margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 2px solid transparent;
         }
 
         .result-answer:hover {
@@ -620,8 +621,8 @@
         }
 
         .result-answer.selected-for-merge {
-            background: rgba(255, 159, 67, 0.3);
-            border: 2px solid var(--bright-orange);
+            background: rgba(255, 159, 67, 0.4) !important;
+            border: 2px solid var(--bright-orange) !important;
         }
 
         .result-answer .answer-text {
@@ -644,6 +645,7 @@
             padding-top: 10px;
             border-top: 1px solid rgba(255,255,255,0.1);
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .merge-info {
@@ -1068,7 +1070,6 @@
             color: var(--bright-orange);
         }
 
-        /* Leaderboard styles */
         .leaderboard-section {
             margin-top: 20px;
         }
@@ -1116,7 +1117,6 @@
             font-weight: bold;
         }
 
-        /* Winners display styles */
         .winners-display {
             text-align: center;
             padding: 40px 20px;
@@ -1217,6 +1217,12 @@
         .leaderboard-scroll {
             max-height: 400px;
             overflow-y: auto;
+        }
+
+        .selection-count {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85em;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -1380,41 +1386,7 @@
         // CONFIGURATION
         // ============================================
         const DEFAULT_ADMIN_CODE = 'mcla2024';
-      function setupMergeClickHandlers() {
-    const resultsContainer = document.getElementById('results-preview');
-    
-    resultsContainer.addEventListener('click', function(e) {
-        // Find the clicked answer element
-        const answerEl = e.target.closest('.result-answer');
-        if (answerEl) {
-            const qIdx = parseInt(answerEl.dataset.question);
-            const aIdx = parseInt(answerEl.dataset.answer);
-            const key = aggregatedResults[qIdx].answers[aIdx].key;
-            
-            console.log('Clicked Q' + qIdx + ', Answer: ' + key);
-            toggleMergeSelection(qIdx, key);
-            return;
-        }
         
-        // Find merge button
-        const mergeBtn = e.target.closest('.merge-btn');
-        if (mergeBtn) {
-            const qIdx = parseInt(mergeBtn.dataset.question);
-            mergeSelected(qIdx);
-            return;
-        }
-        
-        // Find clear button
-        const clearBtn = e.target.closest('.clear-btn');
-        if (clearBtn) {
-            const qIdx = parseInt(clearBtn.dataset.question);
-            clearSelection(qIdx);
-            return;
-        }
-    });
-    
-    console.log('Merge click handlers set up!');
-}  
         let ADMIN_CODE = localStorage.getItem('mclaSays_adminCode') || DEFAULT_ADMIN_CODE;
         let SHEETS_URL = localStorage.getItem('mclaSays_sheetsUrl') || 'https://script.google.com/macros/s/AKfycbw0A8ZuM5ZirmOmMCQb1ctv9qERhhZVMitQW9_7zX1LoKxcgMgGNmG0rknAHx4D2LQMYw/exec';
         
@@ -1451,22 +1423,21 @@
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async function() {
-    isAdmin = checkAdminAccess();
-    
-    if (SHEETS_URL) {
-        document.getElementById('sheets-url').value = SHEETS_URL;
-        await loadQuestionsFromServer();
-    } else {
-        hideLoading();
-        if (!isAdmin) {
-            document.getElementById('survey-setup-banner').style.display = 'block';
-        }
-    }
-    
-    renderSurvey();
-    renderAdminPanel();
-    setupMergeClickHandlers();  // ADD THIS LINE
-});
+            isAdmin = checkAdminAccess();
+            
+            if (SHEETS_URL) {
+                document.getElementById('sheets-url').value = SHEETS_URL;
+                await loadQuestionsFromServer();
+            } else {
+                hideLoading();
+                if (!isAdmin) {
+                    document.getElementById('survey-setup-banner').style.display = 'block';
+                }
+            }
+            
+            renderSurvey();
+            renderAdminPanel();
+        });
 
         function hideLoading() {
             document.getElementById('loading-overlay').classList.add('hidden');
@@ -1903,6 +1874,7 @@
                 }
                 
                 updateStats();
+                aggregateAnswers();
                 renderResultsPreview();
                 renderRespondentsList();
                 calculatePlayerScores();
@@ -1945,7 +1917,6 @@
                 return;
             }
 
-            // First, build answer counts for each question (with normalization & merging)
             const answerCountsByQuestion = questions.map((q, qIndex) => {
                 const counts = {};
                 
@@ -1965,7 +1936,6 @@
                 return counts;
             });
 
-            // Now calculate each player's score
             playerScores = responses.map(response => {
                 let totalScore = 0;
                 const questionScores = [];
@@ -1991,7 +1961,6 @@
                 };
             });
 
-            // Sort by total score descending
             playerScores.sort((a, b) => b.totalScore - a.totalScore);
         }
 
@@ -2003,7 +1972,6 @@
                 return;
             }
 
-            // Calculate ranks with ties
             let currentRank = 1;
             const rankedScores = playerScores.map((player, idx) => {
                 if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
@@ -2022,7 +1990,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${rankedScores.map((player, idx) => `
+                        ${rankedScores.map((player) => `
                             <tr>
                                 <td class="rank">${player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '#' + player.rank}</td>
                                 <td>${player.name}</td>
@@ -2074,7 +2042,9 @@
             return questionMerges[normalizedAnswer] || normalizedAnswer;
         }
 
-        function aggregateAnswers() {            
+        function aggregateAnswers() {
+            // DON'T clear selectedForMerge here!
+            
             aggregatedResults = questions.map((q, qIndex) => {
                 const answerCounts = {};
                 
@@ -2110,43 +2080,61 @@
             });
         }
 
+        // ============================================
+        // MERGE SELECTION FUNCTIONS (FIXED)
+        // ============================================
         function renderResultsPreview() {
-    if (responses.length === 0) {
-        document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
-        return;
-    }
+            if (responses.length === 0) {
+                document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
+                return;
+            }
 
-    aggregateAnswers();
+            // Store answer keys globally for click handler
+            window.answerKeyMap = {};
+            aggregatedResults.forEach((q, qIdx) => {
+                window.answerKeyMap[qIdx] = {};
+                q.answers.forEach((a, aIdx) => {
+                    window.answerKeyMap[qIdx][aIdx] = a.key;
+                });
+            });
 
-    document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => `
-        <div class="result-question">
-            <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
-            ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
-                <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
-                     data-question="${qIdx}"
-                     data-answer="${aIdx}"
-                     title="Variants: ${a.variants.join(', ')}">
-                    <span class="answer-text">
-                        ${a.answer}
-                        ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
-                    </span>
-                    <span class="answer-count">${a.points}</span>
+            document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => `
+                <div class="result-question" data-question="${qIdx}">
+                    <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
+                    ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
+                        <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
+                             data-question="${qIdx}"
+                             data-answer="${aIdx}"
+                             data-key="${a.key}"
+                             onclick="handleAnswerClick(${qIdx}, ${aIdx})"
+                             title="Variants: ${a.variants.join(', ')}">
+                            <span class="answer-text">
+                                ${a.answer}
+                                ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
+                            </span>
+                            <span class="answer-count">${a.points}</span>
+                        </div>
+                    `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
+                    <div class="merge-controls">
+                        <button class="admin-btn small primary" onclick="mergeSelected(${qIdx})" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
+                            🔗 Merge Selected
+                        </button>
+                        <button class="admin-btn small secondary" onclick="clearSelection(${qIdx})">
+                            ✕ Clear Selection
+                        </button>
+                        <span class="selection-count" id="selection-count-${qIdx}">
+                            ${getSelectionCount(qIdx)} selected
+                        </span>
+                    </div>
                 </div>
-            `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
-            <div class="merge-controls">
-                <button class="admin-btn small primary merge-btn" data-question="${qIdx}" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
-                    🔗 Merge Selected
-                </button>
-                <button class="admin-btn small secondary clear-btn" data-question="${qIdx}">
-                    ✕ Clear Selection
-                </button>
-                <span style="color: rgba(255,255,255,0.5); font-size: 0.85em; margin-left: 10px;">
-                    ${getSelectionCount(qIdx)} selected
-                </span>
-            </div>
-        </div>
-    `).join('');
-}
+            `).join('');
+        }
+
+        function handleAnswerClick(qIdx, aIdx) {
+            const key = window.answerKeyMap[qIdx][aIdx];
+            console.log('Clicked Q' + qIdx + ', A' + aIdx + ', Key: ' + key);
+            toggleMergeSelection(qIdx, key);
+        }
 
         function isSelectedForMerge(qIdx, key) {
             return selectedForMerge[qIdx] && selectedForMerge[qIdx].includes(key);
@@ -2160,55 +2148,94 @@
             return selectedForMerge[qIdx] ? selectedForMerge[qIdx].length : 0;
         }
 
-       function toggleMergeSelection(qIdx, key) {
-    if (!selectedForMerge[qIdx]) {
-        selectedForMerge[qIdx] = [];
-    }
-    
-    const idx = selectedForMerge[qIdx].indexOf(key);
-    if (idx > -1) {
-        selectedForMerge[qIdx].splice(idx, 1);
-    } else {
-        selectedForMerge[qIdx].push(key);
-    }
-    
-    console.log('Selected for merge:', selectedForMerge[qIdx]);
-    renderResultsPreview();
-}
+        function toggleMergeSelection(qIdx, key) {
+            if (!selectedForMerge[qIdx]) {
+                selectedForMerge[qIdx] = [];
+            }
+            
+            const idx = selectedForMerge[qIdx].indexOf(key);
+            if (idx > -1) {
+                selectedForMerge[qIdx].splice(idx, 1);
+            } else {
+                selectedForMerge[qIdx].push(key);
+            }
+            
+            console.log('Selected for merge:', selectedForMerge[qIdx]);
+            
+            // Update visuals WITHOUT re-aggregating
+            updateMergeVisuals(qIdx);
+        }
+
+        function updateMergeVisuals(qIdx) {
+            // Update answer highlights
+            const answers = document.querySelectorAll(`.result-answer[data-question="${qIdx}"]`);
+            answers.forEach(el => {
+                const key = el.dataset.key;
+                if (selectedForMerge[qIdx] && selectedForMerge[qIdx].includes(key)) {
+                    el.classList.add('selected-for-merge');
+                } else {
+                    el.classList.remove('selected-for-merge');
+                }
+            });
+            
+            // Update merge button
+            const questionEl = document.querySelector(`.result-question[data-question="${qIdx}"]`);
+            if (questionEl) {
+                const mergeBtn = questionEl.querySelector('.admin-btn.primary');
+                if (mergeBtn) {
+                    mergeBtn.disabled = !hasMultipleSelected(qIdx);
+                }
+                
+                // Update count
+                const countEl = document.getElementById(`selection-count-${qIdx}`);
+                if (countEl) {
+                    countEl.textContent = getSelectionCount(qIdx) + ' selected';
+                }
+            }
+        }
 
         function clearSelection(qIdx) {
             selectedForMerge[qIdx] = [];
-            renderResultsPreview();
+            updateMergeVisuals(qIdx);
         }
 
- function mergeSelected(qIdx) {
-    if (!hasMultipleSelected(qIdx)) return;
-    
-    const selected = selectedForMerge[qIdx];
-    const primaryKey = selected[0];
-    
-    if (!mergeRules[qIdx]) {
-        mergeRules[qIdx] = {};
-    }
-    
-    for (let i = 1; i < selected.length; i++) {
-        mergeRules[qIdx][selected[i]] = primaryKey;
-    }
-    
-    localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
-    selectedForMerge[qIdx] = [];
-    
-    console.log('Merged! Rules:', mergeRules[qIdx]);
-    
-    renderResultsPreview();
-    calculatePlayerScores();
-    renderAdminLeaderboard();
-}
+        function mergeSelected(qIdx) {
+            if (!hasMultipleSelected(qIdx)) {
+                alert('Select at least 2 answers to merge');
+                return;
+            }
+            
+            const selected = selectedForMerge[qIdx];
+            const primaryKey = selected[0];
+            
+            if (!mergeRules[qIdx]) {
+                mergeRules[qIdx] = {};
+            }
+            
+            for (let i = 1; i < selected.length; i++) {
+                mergeRules[qIdx][selected[i]] = primaryKey;
+            }
+            
+            localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+            
+            // Clear selection
+            selectedForMerge[qIdx] = [];
+            
+            console.log('Merged! Rules:', mergeRules[qIdx]);
+            alert('Merged ' + selected.length + ' answers into one!');
+            
+            // Re-aggregate and re-render
+            aggregateAnswers();
+            renderResultsPreview();
+            calculatePlayerScores();
+            renderAdminLeaderboard();
+        }
 
         function clearMerges() {
             if (confirm('Clear all answer merges?')) {
                 mergeRules = {};
                 localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+                aggregateAnswers();
                 renderResultsPreview();
                 calculatePlayerScores();
                 renderAdminLeaderboard();
@@ -2276,7 +2303,6 @@
         function renderWinnersScreen() {
             document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
             
-            // Calculate ranks with ties
             let currentRank = 1;
             const rankedScores = playerScores.map((player, idx) => {
                 if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
@@ -2285,7 +2311,6 @@
                 return { ...player, rank: currentRank };
             });
             
-            // Get top 5 (but might be more if ties at 5th place)
             const top5 = rankedScores.filter(p => p.rank <= 5);
             
             const board = document.getElementById('game-board');
@@ -2346,7 +2371,6 @@
             const winnerCards = document.querySelectorAll('.winner-card');
             const totalWinners = winnerCards.length;
             
-            // Reveal from last to first (for drama!)
             if (revealedWinners < totalWinners) {
                 const revealIdx = totalWinners - 1 - revealedWinners;
                 const winnerCard = document.getElementById(`winner-${revealIdx}`);
@@ -2387,7 +2411,6 @@
                 currentGameQuestion++;
                 renderGameQuestion();
             } else {
-                // Last question - go to winners
                 showingWinners = true;
                 revealedWinners = 0;
                 renderGameQuestion();
@@ -2410,7 +2433,6 @@
 
         function goToQuestion(index) {
             if (index === aggregatedResults.length) {
-                // Trophy clicked
                 showingWinners = true;
                 revealedWinners = 0;
             } else {
@@ -2431,7 +2453,6 @@
                 <div class="q-dot ${i === currentGameQuestion && !showingWinners ? 'active' : ''}" onclick="goToQuestion(${i})">${i + 1}</div>
             `).join('');
             
-            // Add trophy dot for winners
             html += `<div class="q-dot trophy ${showingWinners ? 'active' : ''}" onclick="goToQuestion(${aggregatedResults.length})">🏆</div>`;
             
             document.getElementById('question-nav').innerHTML = html;
@@ -2487,7 +2508,6 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                // Higher pitched fanfare for higher places
                 const baseFreq = place === 0 ? 523.25 : 392;
                 
                 oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
