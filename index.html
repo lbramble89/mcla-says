@@ -2074,9 +2074,7 @@
             return questionMerges[normalizedAnswer] || normalizedAnswer;
         }
 
-        function aggregateAnswers() {
-            selectedForMerge = {};
-            
+        function aggregateAnswers() {            
             aggregatedResults = questions.map((q, qIndex) => {
                 const answerCounts = {};
                 
