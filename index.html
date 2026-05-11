@@ -2068,7 +2068,6 @@
 
                 const sorted = Object.entries(answerCounts)
                     .sort((a, b) => b[1].count - a[1].count)
-                    .slice(0, 8)
                     .map(([key, val]) => ({
                         key: key,
                         answer: val.original,
