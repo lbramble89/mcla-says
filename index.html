@@ -2078,41 +2078,66 @@
         }
 
         function renderResultsPreview() {
-            if (responses.length === 0) {
-                document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
-                return;
-            }
+    if (responses.length === 0) {
+        document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
+        return;
+    }
 
-            aggregateAnswers();
+    aggregateAnswers();
 
-            document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => `
-                <div class="result-question">
-                    <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
-                    ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
-                        <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
-                             onclick="toggleMergeSelection(${qIdx}, '${encodeURIComponent(a.key)}')"
-                             title="Variants: ${a.variants.join(', ')}">
-                            <span class="answer-text">
-                                ${a.answer}
-                                ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
-                            </span>
-                            <span class="answer-count">${a.points}</span>
-                        </div>
-                    `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
-                    <div class="merge-controls">
-                        <button class="admin-btn small primary" onclick="mergeSelected(${qIdx})" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
-                            🔗 Merge Selected
-                        </button>
-                        <button class="admin-btn small secondary" onclick="clearSelection(${qIdx})">
-                            ✕ Clear Selection
-                        </button>
-                        <span style="color: rgba(255,255,255,0.5); font-size: 0.85em; margin-left: 10px;">
-                            ${getSelectionCount(qIdx)} selected
-                        </span>
-                    </div>
+    document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => `
+        <div class="result-question">
+            <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
+            ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
+                <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
+                     data-question="${qIdx}"
+                     data-answer="${aIdx}"
+                     title="Variants: ${a.variants.join(', ')}">
+                    <span class="answer-text">
+                        ${a.answer}
+                        ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
+                    </span>
+                    <span class="answer-count">${a.points}</span>
                 </div>
-            `).join('');
-        }
+            `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
+            <div class="merge-controls">
+                <button class="admin-btn small primary merge-btn" data-question="${qIdx}" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
+                    🔗 Merge Selected
+                </button>
+                <button class="admin-btn small secondary clear-btn" data-question="${qIdx}">
+                    ✕ Clear Selection
+                </button>
+                <span style="color: rgba(255,255,255,0.5); font-size: 0.85em; margin-left: 10px;">
+                    ${getSelectionCount(qIdx)} selected
+                </span>
+            </div>
+        </div>
+    `).join('');
+
+    // Add click handlers after rendering
+    document.querySelectorAll('.result-answer').forEach(el => {
+        el.addEventListener('click', function() {
+            const qIdx = parseInt(this.dataset.question);
+            const aIdx = parseInt(this.dataset.answer);
+            const key = aggregatedResults[qIdx].answers[aIdx].key;
+            toggleMergeSelection(qIdx, key);
+        });
+    });
+
+    document.querySelectorAll('.merge-btn').forEach(el => {
+        el.addEventListener('click', function() {
+            const qIdx = parseInt(this.dataset.question);
+            mergeSelected(qIdx);
+        });
+    });
+
+    document.querySelectorAll('.clear-btn').forEach(el => {
+        el.addEventListener('click', function() {
+            const qIdx = parseInt(this.dataset.question);
+            clearSelection(qIdx);
+        });
+    });
+}
 
         function isSelectedForMerge(qIdx, key) {
             return selectedForMerge[qIdx] && selectedForMerge[qIdx].includes(key);
@@ -2126,48 +2151,50 @@
             return selectedForMerge[qIdx] ? selectedForMerge[qIdx].length : 0;
         }
 
-        function toggleMergeSelection(qIdx, encodedKey) {
-            const key = decodeURIComponent(encodedKey);
-            
-            if (!selectedForMerge[qIdx]) {
-                selectedForMerge[qIdx] = [];
-            }
-            
-            const idx = selectedForMerge[qIdx].indexOf(key);
-            if (idx > -1) {
-                selectedForMerge[qIdx].splice(idx, 1);
-            } else {
-                selectedForMerge[qIdx].push(key);
-            }
-            
-            renderResultsPreview();
-        }
+       function toggleMergeSelection(qIdx, key) {
+    if (!selectedForMerge[qIdx]) {
+        selectedForMerge[qIdx] = [];
+    }
+    
+    const idx = selectedForMerge[qIdx].indexOf(key);
+    if (idx > -1) {
+        selectedForMerge[qIdx].splice(idx, 1);
+    } else {
+        selectedForMerge[qIdx].push(key);
+    }
+    
+    console.log('Selected for merge:', selectedForMerge[qIdx]);
+    renderResultsPreview();
+}
 
         function clearSelection(qIdx) {
             selectedForMerge[qIdx] = [];
             renderResultsPreview();
         }
 
-        function mergeSelected(qIdx) {
-            if (!hasMultipleSelected(qIdx)) return;
-            
-            const selected = selectedForMerge[qIdx];
-            const primaryKey = selected[0];
-            
-            if (!mergeRules[qIdx]) {
-                mergeRules[qIdx] = {};
-            }
-            
-            for (let i = 1; i < selected.length; i++) {
-                mergeRules[qIdx][selected[i]] = primaryKey;
-            }
-            
-            localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
-            selectedForMerge[qIdx] = [];
-            renderResultsPreview();
-            calculatePlayerScores();
-            renderAdminLeaderboard();
-        }
+ function mergeSelected(qIdx) {
+    if (!hasMultipleSelected(qIdx)) return;
+    
+    const selected = selectedForMerge[qIdx];
+    const primaryKey = selected[0];
+    
+    if (!mergeRules[qIdx]) {
+        mergeRules[qIdx] = {};
+    }
+    
+    for (let i = 1; i < selected.length; i++) {
+        mergeRules[qIdx][selected[i]] = primaryKey;
+    }
+    
+    localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+    selectedForMerge[qIdx] = [];
+    
+    console.log('Merged! Rules:', mergeRules[qIdx]);
+    
+    renderResultsPreview();
+    calculatePlayerScores();
+    renderAdminLeaderboard();
+}
 
         function clearMerges() {
             if (confirm('Clear all answer merges?')) {
