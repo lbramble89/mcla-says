@@ -2344,6 +2344,16 @@
     document.getElementById('game-question').textContent = q.question;
     
     const board = document.getElementById('game-board');
+    
+    // Calculate rows needed for 2 columns, filling top-to-bottom
+    const numRows = Math.ceil(q.answers.length / 2);
+    
+    board.style.display = 'grid';
+    board.style.gridTemplateColumns = '1fr 1fr';
+    board.style.gridTemplateRows = `repeat(${numRows}, auto)`;
+    board.style.gridAutoFlow = 'column';
+    board.style.gap = '10px';
+    
     board.innerHTML = q.answers.map((a, i) => `
         <div class="answer-row" id="answer-row-${i}" onclick="revealAnswer(${i})">
             <div class="answer-number">${i + 1}</div>
