@@ -2448,7 +2448,7 @@ document.getElementById('game-question').innerHTML = questionHTML;
                     <div class="winners-title">Top Players</div>
                     <div class="winners-subtitle">${responses.length} players competed!</div>
                     ${rankedScores.map((player, idx) => `
-                        <div class="winner-card ${idx === 0 ? 'first-place' : ''}" id="winner-${idx}">
+                        <div class="winner-card ${player.rank === 1 ? 'first-place' : ''}" id="winner-${idx}">
                             <span class="winner-rank">${player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '#' + player.rank}</span>
                             <span class="winner-name">${player.name}</span>
                             <span class="winner-score">${player.totalScore} pts</span>
