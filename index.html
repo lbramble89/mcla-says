@@ -2518,52 +2518,82 @@
             }
         }
 
-        function playRevealSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
-                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.4);
-            } catch (e) {}
-        }
+function playRevealSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = 'sine';
+        
+        // Meow: rise up then fall down
+        const now = audioContext.currentTime;
+        oscillator.frequency.setValueAtTime(300, now);
+        oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(450, now + 0.25);
+        oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.4);
+        
+        // Volume envelope
+        gainNode.gain.setValueAtTime(0.01, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.3, now + 0.05);
+        gainNode.gain.setValueAtTime(0.3, now + 0.2);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        
+        oscillator.start(now);
+        oscillator.stop(now + 0.4);
+    } catch (e) {}
+}
 
-        function playWinnerSound(place) {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                const baseFreq = place === 0 ? 523.25 : 392;
-                
-                oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(baseFreq * 1.25, audioContext.currentTime + 0.1);
-                oscillator.frequency.setValueAtTime(baseFreq * 1.5, audioContext.currentTime + 0.2);
-                if (place === 0) {
-                    oscillator.frequency.setValueAtTime(baseFreq * 2, audioContext.currentTime + 0.3);
-                }
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (e) {}
+function playWinnerSound(place) {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const duration = place === 0 ? 2.5 : 1.5; // Longer applause for 1st place
+        
+        // Create white noise for applause
+        const bufferSize = audioContext.sampleRate * duration;
+        const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
         }
+        
+        const whiteNoise = audioContext.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        
+        // Filter to make it sound more like applause
+        const bandpass = audioContext.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.value = 1000;
+        bandpass.Q.value = 0.5;
+        
+        // Add some variation with a second filter
+        const highpass = audioContext.createBiquadFilter();
+        highpass.type = 'highpass';
+        highpass.frequency.value = 200;
+        
+        // Volume envelope - swell up then fade
+        const gainNode = audioContext.createGain();
+        const now = audioContext.currentTime;
+        
+        gainNode.gain.setValueAtTime(0.01, now);
+        gainNode.gain.exponentialRampToValueAtTime(place === 0 ? 0.4 : 0.25, now + 0.3);
+        gainNode.gain.setValueAtTime(place === 0 ? 0.4 : 0.25, now + duration - 0.5);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        
+        // Connect nodes
+        whiteNoise.connect(bandpass);
+        bandpass.connect(highpass);
+        highpass.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        whiteNoise.start(now);
+        whiteNoise.stop(now + duration);
+    } catch (e) {}
+}
 
         function launchConfetti() {
             const colors = ['#ffd700', '#ff6b6b', '#26de81', '#fd79a8', '#5eb3e4', '#ff9f43'];
