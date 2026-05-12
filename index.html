@@ -1345,7 +1345,14 @@
                     <div id="respondents-names"></div>
                 </div>
             </div>
-
+<div class="admin-section">
+    <h2>🚪 Survey Status</h2>
+    <p style="color: rgba(255,255,255,0.7); margin-bottom:15px;">Control whether new responses can be submitted</p>
+    <div id="survey-status-display" style="margin-bottom: 15px;"></div>
+    <button class="admin-btn primary" id="toggle-survey-btn" onclick="toggleSurvey()">
+        Loading...
+    </button>
+</div>
             <div class="admin-section">
                 <h2>🏆 Full Leaderboard (All Players)</h2>
                 <p style="color: rgba(255,255,255,0.7); margin-bottom:15px;">Scores based on matching answers (1 point per person with same answer, including yourself)</p>
@@ -1442,8 +1449,9 @@
         let revealedAnswers = [];
         let aggregatedResults = [];
         let playerScores = [];
-        let isConnected = false;
-        let isAdmin = false;
+let isConnected = false;
+let isAdmin = false;
+let surveyClosed = localStorage.getItem('mclaSays_surveyClosed') === 'true';
         let selectedForMerge = {};
         let questionsLoaded = false;
         let showingWinners = false;
@@ -1507,6 +1515,35 @@
             
             hideLoading();
         }
+        function toggleSurvey() {
+    surveyClosed = !surveyClosed;
+    localStorage.setItem('mclaSays_surveyClosed', surveyClosed);
+    updateSurveyStatusDisplay();
+    
+    if (surveyClosed) {
+        alert('Survey is now CLOSED. No new responses will be accepted.');
+    } else {
+        alert('Survey is now OPEN. Responses can be submitted.');
+    }
+}
+
+function updateSurveyStatusDisplay() {
+    const statusDisplay = document.getElementById('survey-status-display');
+    const toggleBtn = document.getElementById('toggle-survey-btn');
+    
+    if (statusDisplay) {
+        if (surveyClosed) {
+            statusDisplay.innerHTML = '<span style="color: #ff6b6b; font-size: 1.2em; font-weight: bold;">🔴 Survey is CLOSED</span>';
+        } else {
+            statusDisplay.innerHTML = '<span style="color: var(--bright-green); font-size: 1.2em; font-weight: bold;">🟢 Survey is OPEN</span>';
+        }
+    }
+    
+    if (toggleBtn) {
+        toggleBtn.textContent = surveyClosed ? '🔓 Open Survey' : '🔒 Close Survey';
+        toggleBtn.className = surveyClosed ? 'admin-btn secondary' : 'admin-btn primary';
+    }
+}
 
         function updateSyncStatus(synced) {
             const statusEl = document.getElementById('sync-status');
@@ -1688,7 +1725,12 @@
             });
         }
 
-        async function submitSurvey() {
+async function submitSurvey() {
+    // Check if survey is closed
+    if (localStorage.getItem('mclaSays_surveyClosed') === 'true') {
+        alert('Sorry, this survey is now closed and no longer accepting responses.');
+        return;
+    }
             if (!SHEETS_URL) {
                 alert('Survey is not connected. Please contact the game organizer.');
                 return;
