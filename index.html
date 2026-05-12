@@ -739,7 +739,7 @@
             border: 3px solid var(--mcla-light);
         }
 
-       .game-board {
+     .game-board {
     background: linear-gradient(180deg, var(--mcla-blue) 0%, var(--mcla-dark) 100%);
     border: 8px solid var(--mcla-light);
     border-radius: 20px;
@@ -748,9 +748,9 @@
     max-width: 1000px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(94, 179, 228, 0.1);
     margin-top: 30px;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
 }
 
 @media (min-width: 1200px) {
