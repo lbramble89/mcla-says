@@ -1207,6 +1207,24 @@
             font-size: 0.85em;
             margin-left: 10px;
         }
+        /* ... all the existing CSS ... */
+
+    .game-question-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        justify-content: center;
+        margin-top: 20px;
+        font-size: 0.6em;
+        font-weight: normal;
+    }
+
+    .game-option {
+        background: rgba(255,255,255,0.15);
+        padding: 8px 16px;
+        border-radius: 8px;
+    }
+
     </style>
 </head>
 <body>
@@ -2309,7 +2327,17 @@
             const q = aggregatedResults[currentGameQuestion];
             revealedAnswers = new Array(q.answers.length).fill(false);
 
-            document.getElementById('game-question').textContent = q.question;
+let questionHTML = q.question;
+if (q.options && q.options.length > 0) {
+    questionHTML += `
+        <div class="game-question-options">
+            ${q.options.map((opt, i) => `
+                <span class="game-option">${String.fromCharCode(65 + i)}. ${opt}</span>
+            `).join('')}
+        </div>
+    `;
+}
+document.getElementById('game-question').innerHTML = questionHTML;
             
             const board = document.getElementById('game-board');
             
