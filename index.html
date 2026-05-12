@@ -2083,51 +2083,92 @@
         // MERGE SELECTION FUNCTIONS (FIXED)
         // ============================================
         function renderResultsPreview() {
-            if (responses.length === 0) {
-                document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
-                return;
-            }
+    if (responses.length === 0) {
+        document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
+        return;
+    }
 
-            // Store answer keys globally for click handler
-            window.answerKeyMap = {};
-            aggregatedResults.forEach((q, qIdx) => {
-                window.answerKeyMap[qIdx] = {};
-                q.answers.forEach((a, aIdx) => {
-                    window.answerKeyMap[qIdx][aIdx] = a.key;
-                });
+    // Store answer keys globally for click handler
+    window.answerKeyMap = {};
+    aggregatedResults.forEach((q, qIdx) => {
+        window.answerKeyMap[qIdx] = {};
+        q.answers.forEach((a, aIdx) => {
+            window.answerKeyMap[qIdx][aIdx] = a.key;
+        });
+    });
+
+    document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => {
+        // Build merge info display
+        const qMergeRules = mergeRules[qIdx] || {};
+        const mergeEntries = Object.entries(qMergeRules);
+        let mergeInfoHtml = '';
+        
+        if (mergeEntries.length > 0) {
+            // Group by primary key
+            const mergeGroups = {};
+            mergeEntries.forEach(([from, to]) => {
+                if (!mergeGroups[to]) {
+                    mergeGroups[to] = [];
+                }
+                mergeGroups[to].push(from);
             });
-
-            document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => `
-                <div class="result-question" data-question="${qIdx}">
-                    <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
-                    ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
-                        <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
-                             data-question="${qIdx}"
-                             data-answer="${aIdx}"
-                             data-key="${a.key}"
-                             onclick="handleAnswerClick(${qIdx}, ${aIdx})"
-                             title="Variants: ${a.variants.join(', ')}">
-                            <span class="answer-text">
-                                ${a.answer}
-                                ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
-                            </span>
-                            <span class="answer-count">${a.points}</span>
+            
+            mergeInfoHtml = `
+                <div style="background: rgba(38, 222, 129, 0.2); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid var(--bright-green);">
+                    <strong style="color: var(--bright-green);">📎 Active Merges:</strong>
+                    ${Object.entries(mergeGroups).map(([primary, merged]) => `
+                        <div style="margin-top: 8px; padding: 5px 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                            <strong>"${primary}"</strong> ← ${merged.map(m => `"${m}"`).join(', ')}
                         </div>
-                    `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
-                    <div class="merge-controls">
-                        <button class="admin-btn small primary" onclick="mergeSelected(${qIdx})" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
-                            🔗 Merge Selected
-                        </button>
-                        <button class="admin-btn small secondary" onclick="clearSelection(${qIdx})">
-                            ✕ Clear Selection
-                        </button>
-                        <span class="selection-count" id="selection-count-${qIdx}">
-                            ${getSelectionCount(qIdx)} selected
-                        </span>
-                    </div>
+                    `).join('')}
                 </div>
-            `).join('');
+            `;
         }
+        
+        return `
+            <div class="result-question" data-question="${qIdx}">
+                <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
+                ${mergeInfoHtml}
+                ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
+                    <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
+                         data-question="${qIdx}"
+                         data-answer="${aIdx}"
+                         data-key="${a.key}"
+                         onclick="handleAnswerClick(${qIdx}, ${aIdx})"
+                         title="Variants: ${a.variants.join(', ')}">
+                        <span class="answer-text">
+                            ${a.answer}
+                            ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
+                        </span>
+                        <span class="answer-count">${a.points}</span>
+                    </div>
+                `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
+                <div class="merge-controls">
+                    <button class="admin-btn small primary" onclick="mergeSelected(${qIdx})" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
+                        🔗 Merge Selected
+                    </button>
+                    <button class="admin-btn small secondary" onclick="clearSelection(${qIdx})">
+                        ✕ Clear Selection
+                    </button>
+                    ${mergeEntries.length > 0 ? `<button class="admin-btn small secondary" onclick="clearMergesForQuestion(${qIdx})">↩️ Undo Merges</button>` : ''}
+                    <span class="selection-count" id="selection-count-${qIdx}">
+                        ${getSelectionCount(qIdx)} selected
+                    </span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+        function clearMergesForQuestion(qIdx) {
+    if (confirm('Clear all merges for this question?')) {
+        delete mergeRules[qIdx];
+        localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+        aggregateAnswers();
+        renderResultsPreview();
+        calculatePlayerScores();
+        renderAdminLeaderboard();
+    }
+}
 
         function handleAnswerClick(qIdx, aIdx) {
             const key = window.answerKeyMap[qIdx][aIdx];
