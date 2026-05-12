@@ -2329,7 +2329,7 @@
 
 let questionHTML = q.question;
 const originalQ = questions[currentGameQuestion];
-if (originalQ && originalQ.options && originalQ.options.length > 0) {
+if (originalQ && originalQ.type === 'multiple' && originalQ.options && originalQ.options.length > 0) {
     questionHTML += `
         <div class="game-question-options">
             ${originalQ.options.map((opt, i) => `
