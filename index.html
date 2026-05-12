@@ -2398,14 +2398,19 @@
             playRevealSound();
         }
 
-        function revealNext() {
-            if (showingWinners) {
-                revealNextWinner();
-                return;
-            }
-            const nextIndex = revealedAnswers.findIndex(r => !r);
-            if (nextIndex !== -1) revealAnswer(nextIndex);
+function revealNext() {
+    if (showingWinners) {
+        revealNextWinner();
+        return;
+    }
+    // Find the last unrevealed answer (reveal from bottom to top)
+    for (let i = revealedAnswers.length - 1; i >= 0; i--) {
+        if (!revealedAnswers[i]) {
+            revealAnswer(i);
+            break;
         }
+    }
+}
 
         function revealNextWinner() {
             const winnerCards = document.querySelectorAll('.winner-card');
@@ -2427,22 +2432,35 @@
             }
         }
 
-        function revealAll() {
-            if (showingWinners) {
-                const winnerCards = document.querySelectorAll('.winner-card');
-                winnerCards.forEach((card, i) => {
-                    setTimeout(() => {
-                        card.classList.add('revealed');
-                    }, i * 200);
-                });
-                revealedWinners = winnerCards.length;
-                setTimeout(launchConfetti, winnerCards.length * 200 + 500);
-                return;
-            }
-            
-            const q = aggregatedResults[currentGameQuestion];
-            q.answers.forEach((_, i) => setTimeout(() => revealAnswer(i), i * 300));
+function revealAll() {
+    if (showingWinners) {
+        const winnerCards = document.querySelectorAll('.winner-card');
+        const totalWinners = winnerCards.length;
+        
+        for (let i = 0; i < totalWinners; i++) {
+            const revealIdx = totalWinners - 1 - i;
+            setTimeout(() => {
+                const card = document.getElementById(`winner-${revealIdx}`);
+                if (card) {
+                    card.classList.add('revealed');
+                    playWinnerSound(revealIdx === 0 ? 0 : revealIdx);
+                }
+            }, i * 400);
         }
+        
+        revealedWinners = totalWinners;
+        setTimeout(launchConfetti, totalWinners * 400 + 300);
+        return;
+    }
+    
+    // Reveal answers from last to first
+    const q = aggregatedResults[currentGameQuestion];
+    const total = q.answers.length;
+    for (let i = 0; i < total; i++) {
+        const revealIdx = total - 1 - i;
+        setTimeout(() => revealAnswer(revealIdx), i * 300);
+    }
+}
 
         function nextQuestion() {
             if (showingWinners) return;
