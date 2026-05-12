@@ -29,29 +29,6 @@
             color: white;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: -100px;
-            right: -100px;
-            width: 400px;
-            height: 400px;
-            border: 30px solid rgba(94, 179, 228, 0.2);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -150px;
-            left: -150px;
-            width: 500px;
-            height: 500px;
-            border: 40px solid rgba(94, 179, 228, 0.15);
-            border-radius: 50%;
-            pointer-events: none;
-        }
 
         .mode-selector {
             display: flex;
@@ -79,6 +56,10 @@
             transition: all 0.3s;
             font-weight: bold;
         }
+        .judge-cat-icon {
+    vertical-align: middle;
+    margin: 0 10px;
+}
 
         .mode-btn.survey {
             background: linear-gradient(135deg, var(--bright-orange) 0%, #e67e22 100%);
@@ -1257,9 +1238,7 @@
             </div>
 
             <div class="survey-header">
-                <h1>🎯 MCLA <span>Says!</span></h1>
-                <p>Answer each question with what you think MOST people will say!</p>
-            </div>
+               <h1><svg class="judge-cat-icon" width="50" height="50"><use href="#judge-cat"/></svg> MCLA <span>Says!</span></h1>
 
             <div class="name-input-section">
                 <h3>👤 Your Full Name</h3>
@@ -1371,7 +1350,12 @@
         <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         <div class="game-container">
             <div class="game-header">
-                <div class="game-title">🎯 MCLA <span>Says!</span> 🎯</div>
+                <div class="game-title">
+    <svg class="judge-cat-icon" width="60" height="60"><use href="#judge-cat"/></svg>
+    MCLA <span>Says!</span>
+    <svg class="judge-cat-icon" width="60" height="60"><use href="#judge-cat"/></svg>
+</div>
+                
                 <div class="question-display" id="game-question">Loading...</div>
             </div>
 
@@ -2370,39 +2354,16 @@
     updateQuestionNav();
 }
 
-        function renderWinnersScreen() {
-            document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
-            
-            let currentRank = 1;
-            const rankedScores = playerScores.map((player, idx) => {
-                if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
-                    currentRank = idx + 1;
-                }
-                return { ...player, rank: currentRank };
-            });
-            
-            const top5 = rankedScores.filter(p => p.rank <= 5);
-            
-            const board = document.getElementById('game-board');
-            board.innerHTML = `
-                <div class="winners-display">
-                    <div class="trophy-icon">🏆</div>
-                    <h2 class="winners-title">Top 5 Winners!</h2>
-                    <p class="winners-subtitle">Who thinks most like the crowd?</p>
-                    
-                    ${top5.map((player, idx) => `
-                        <div class="winner-card ${player.rank === 1 ? 'first-place' : ''}" id="winner-${idx}">
-                            <span class="winner-rank">${player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '#' + player.rank}</span>
-                            <span class="winner-name">${player.name}</span>
-                            <span class="winner-score">${player.totalScore} pts</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            updateNavButtons();
-            updateQuestionNav();
-        }
+       function renderWinnersScreen() {
+    document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
+    
+    // Reset board styles from game view
+    const board = document.getElementById('game-board');
+    board.style.display = 'block';
+    board.style.maxWidth = '700px';
+    
+    let currentRank = 1;
+    // ... rest of the function stays the same
 
         function revealAnswer(index) {
             if (showingWinners) return;
