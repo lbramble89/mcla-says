@@ -1476,6 +1476,8 @@ let surveyClosed = localStorage.getItem('mclaSays_surveyClosed') === 'true';
             
             renderSurvey();
             renderAdminPanel();
+                updateSurveyStatusDisplay();
+
         });
 
         function hideLoading() {
