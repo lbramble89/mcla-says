@@ -2539,77 +2539,60 @@ function revealAll() {
 function playRevealSound() {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.type = 'sine';
-        
-        // Meow: rise up then fall down
         const now = audioContext.currentTime;
-        oscillator.frequency.setValueAtTime(300, now);
-        oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.1);
-        oscillator.frequency.exponentialRampToValueAtTime(450, now + 0.25);
-        oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.4);
         
-        // Volume envelope
-        gainNode.gain.setValueAtTime(0.01, now);
-        gainNode.gain.exponentialRampToValueAtTime(0.3, now + 0.05);
-        gainNode.gain.setValueAtTime(0.3, now + 0.2);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-        
-        oscillator.start(now);
-        oscillator.stop(now + 0.4);
+        // Play two notes for a pleasant "ding ding" chime
+        [523.25, 783.99].forEach((freq, i) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = freq;
+            
+            const noteStart = now + (i * 0.12);
+            gainNode.gain.setValueAtTime(0, noteStart);
+            gainNode.gain.linearRampToValueAtTime(0.25, noteStart + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, noteStart + 0.4);
+            
+            oscillator.start(noteStart);
+            oscillator.stop(noteStart + 0.4);
+        });
     } catch (e) {}
 }
 
 function playWinnerSound(place) {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const duration = place === 0 ? 2.5 : 1.5; // Longer applause for 1st place
-        
-        // Create white noise for applause
-        const bufferSize = audioContext.sampleRate * duration;
-        const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        
-        for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-        }
-        
-        const whiteNoise = audioContext.createBufferSource();
-        whiteNoise.buffer = noiseBuffer;
-        
-        // Filter to make it sound more like applause
-        const bandpass = audioContext.createBiquadFilter();
-        bandpass.type = 'bandpass';
-        bandpass.frequency.value = 1000;
-        bandpass.Q.value = 0.5;
-        
-        // Add some variation with a second filter
-        const highpass = audioContext.createBiquadFilter();
-        highpass.type = 'highpass';
-        highpass.frequency.value = 200;
-        
-        // Volume envelope - swell up then fade
-        const gainNode = audioContext.createGain();
         const now = audioContext.currentTime;
         
-        gainNode.gain.setValueAtTime(0.01, now);
-        gainNode.gain.exponentialRampToValueAtTime(place === 0 ? 0.4 : 0.25, now + 0.3);
-        gainNode.gain.setValueAtTime(place === 0 ? 0.4 : 0.25, now + duration - 0.5);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        // Celebratory chord - more notes and longer for 1st place
+        const notes = place === 0 
+            ? [523.25, 659.25, 783.99, 1046.50] // C major chord + octave
+            : [523.25, 659.25, 783.99]; // C major chord
         
-        // Connect nodes
-        whiteNoise.connect(bandpass);
-        bandpass.connect(highpass);
-        highpass.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        const noteDuration = place === 0 ? 0.8 : 0.5;
         
-        whiteNoise.start(now);
-        whiteNoise.stop(now + duration);
+        notes.forEach((freq, i) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = freq;
+            
+            const noteStart = now + (i * 0.08);
+            gainNode.gain.setValueAtTime(0, noteStart);
+            gainNode.gain.linearRampToValueAtTime(place === 0 ? 0.2 : 0.15, noteStart + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, noteStart + noteDuration);
+            
+            oscillator.start(noteStart);
+            oscillator.stop(noteStart + noteDuration);
+        });
     } catch (e) {}
 }
 
