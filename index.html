@@ -28,32 +28,26 @@
             min-height: 100vh;
             color: white;
         }
-    
 
-.mode-selector {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 30px;
-    background: rgba(0,0,0,0.3);
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 10;
-}
+        .mode-selector {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 30px;
+            background: rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 10;
+        }
 
-.logo-small {
-    height: 50px;
-    margin-right: 0;
-}
+        .mode-selector.visible {
+            display: flex;
+        }
 
-.mode-selector:not(:has(.visible)) .logo-small {
-    display: none;
-}
-
-.mode-selector:not(:has(.visible)) {
-    display: none;
-}
+        .logo-small {
+            height: 50px;
+        }
 
         .mode-btn {
             padding: 15px 30px;
@@ -66,9 +60,9 @@
         }
         
         .judge-cat-icon {
-    vertical-align: middle;
-    margin: 0 10px;
-}
+            vertical-align: middle;
+            margin: 0 10px;
+        }
 
         .mode-btn.survey {
             background: linear-gradient(135deg, var(--bright-orange) 0%, #e67e22 100%);
@@ -92,14 +86,6 @@
 
         .mode-btn.active {
             box-shadow: 0 0 0 4px white;
-        }
-
-        .admin-only {
-            display: none;
-        }
-
-        .admin-only.visible {
-            display: inline-block;
         }
 
         .container {
@@ -729,89 +715,89 @@
             border: 3px solid var(--mcla-light);
         }
 
-     .game-board {
-    background: linear-gradient(180deg, var(--mcla-blue) 0%, var(--mcla-dark) 100%);
-    border: 8px solid var(--mcla-light);
-    border-radius: 20px;
-    padding: 20px;
-    width: 100%;
-    max-width: 1000px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(94, 179, 228, 0.1);
-    margin-top: 30px;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
-}
+        .game-board {
+            background: linear-gradient(180deg, var(--mcla-blue) 0%, var(--mcla-dark) 100%);
+            border: 8px solid var(--mcla-light);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(94, 179, 228, 0.1);
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
 
-@media (min-width: 1200px) {
-    .game-board {
-        grid-template-columns: repeat(3, 1fr);
-        max-width: 1200px;
-    }
-}
+        @media (min-width: 1200px) {
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 1200px;
+            }
+        }
 
-@media (max-width: 768px) {
-    .game-board {
-        grid-template-columns: 1fr;
-        max-width: 500px;
-    }
-}
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+        }
 
         .answer-row {
-    display: flex;
-    align-items: center;
-    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
-    border: 3px solid var(--mcla-light);
-    border-radius: 10px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s;
-    min-height: 60px;
-}
+            display: flex;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            border: 3px solid var(--mcla-light);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 60px;
+        }
 
-.answer-number {
-    background: var(--bright-orange);
-    color: white;
-    font-size: 1.2em;
-    font-weight: bold;
-    padding: 10px 15px;
-    min-width: 45px;
-    text-align: center;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        .answer-number {
+            background: var(--bright-orange);
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px 15px;
+            min-width: 45px;
+            text-align: center;
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.answer-content {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    gap: 10px;
-}
+        .answer-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            gap: 10px;
+        }
 
-.answer-text-display {
-    font-size: 1em;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    flex: 1;
-    word-break: break-word;
-}
+        .answer-text-display {
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+            word-break: break-word;
+        }
 
-.answer-points {
-    background: var(--bright-yellow);
-    color: var(--mcla-dark);
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 1em;
-    font-weight: bold;
-    min-width: 50px;
-    text-align: center;
-    flex-shrink: 0;
-}
+        .answer-points {
+            background: var(--bright-yellow);
+            color: var(--mcla-dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+            flex-shrink: 0;
+        }
 
         .game-controls {
             display: flex;
@@ -1224,7 +1210,6 @@
     </style>
 </head>
 <body>
-    <body>
     <svg style="display: none;">
         <symbol id="judge-cat" viewBox="0 0 100 100">
             <circle cx="50" cy="55" r="30" fill="#FFA94D"/>
@@ -1256,19 +1241,18 @@
     </svg>
 
     <div class="loading-overlay" id="loading-overlay">
-    <div class="loading-overlay" id="loading-overlay">
         <div class="spinner"></div>
         <p>Loading survey...</p>
     </div>
 
     <div class="swoosh"></div>
     
-<div class="mode-selector">
-    <img src="https://www.mdlab.org/wp-content/uploads/2023/05/MCLA-Logo.png" alt="MCLA Logo" class="logo-small" onerror="this.style.display='none'">
-    <button class="mode-btn survey active admin-only" onclick="switchMode('survey')">📝 Take Survey</button>
-    <button class="mode-btn admin admin-only" onclick="switchMode('admin')">⚙️ Admin Panel</button>
-    <button class="mode-btn game admin-only" onclick="switchMode('game')">🎮 Game Show</button>
-</div>
+    <div class="mode-selector" id="mode-selector">
+        <img src="https://www.mdlab.org/wp-content/uploads/2023/05/MCLA-Logo.png" alt="MCLA Logo" class="logo-small" onerror="this.style.display='none'">
+        <button class="mode-btn survey active" onclick="switchMode('survey')">📝 Take Survey</button>
+        <button class="mode-btn admin" onclick="switchMode('admin')">⚙️ Admin Panel</button>
+        <button class="mode-btn game" onclick="switchMode('game')">🎮 Game Show</button>
+    </div>
 
     <!-- Survey Panel -->
     <div id="survey-panel" class="panel active">
@@ -1278,10 +1262,11 @@
                 <p>Please contact the game organizer for the correct survey link.</p>
             </div>
 
-           <div class="survey-header">
- <h1><svg class="judge-cat-icon" width="50" height="50"><use xlink:href="#judge-cat"/></svg> MCLA <span>Says!</span></h1>
+            <div class="survey-header">
+                <h1><svg class="judge-cat-icon" width="50" height="50"><use xlink:href="#judge-cat"/></svg> MCLA <span>Says!</span></h1>
+            </div>
 
-<div class="name-input-section">
+            <div class="name-input-section">
                 <h3>👤 Your Full Name</h3>
                 <input type="text" id="respondent-name" placeholder="Enter your first and last name...">
             </div>
@@ -1391,11 +1376,11 @@
         <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         <div class="game-container">
             <div class="game-header">
-<div class="game-title">
-    <svg class="judge-cat-icon" width="60" height="60"><use xlink:href="#judge-cat"/></svg>
-    MCLA <span>Says!</span>
-    <svg class="judge-cat-icon" width="60" height="60"><use xlink:href="#judge-cat"/></svg>
-</div>
+                <div class="game-title">
+                    <svg class="judge-cat-icon" width="60" height="60"><use xlink:href="#judge-cat"/></svg>
+                    MCLA <span>Says!</span>
+                    <svg class="judge-cat-icon" width="60" height="60"><use xlink:href="#judge-cat"/></svg>
+                </div>
                 
                 <div class="question-display" id="game-question">Loading...</div>
             </div>
@@ -1414,15 +1399,11 @@
     </div>
 
     <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
         const DEFAULT_ADMIN_CODE = 'mcla2024';
         
         let ADMIN_CODE = localStorage.getItem('mclaSays_adminCode') || DEFAULT_ADMIN_CODE;
         let SHEETS_URL = localStorage.getItem('mclaSays_sheetsUrl') || 'https://script.google.com/macros/s/AKfycbw0A8ZuM5ZirmOmMCQb1ctv9qERhhZVMitQW9_7zX1LoKxcgMgGNmG0rknAHx4D2LQMYw/exec';
         
-        // Default questions with types
         const defaultQuestions = [
             { question: "Name something that we advise on that you still don't actually understand.", type: "text", options: [] },
             { question: "What's the real reason MCLA staff attend trainings?", type: "multiple", options: ["Genuine Interest", "Because their Supervisor told them to", "Professional Development", "To avoid calls/walk-ins"] },
@@ -1436,7 +1417,6 @@
             { question: "What is your favorite thing about MCLA?", type: "text", options: [] }
         ];
 
-        // State
         let questions = JSON.parse(JSON.stringify(defaultQuestions));
         let responses = [];
         let mergeRules = JSON.parse(localStorage.getItem('mclaSays_mergeRules')) || {};
@@ -1451,11 +1431,12 @@
         let showingWinners = false;
         let revealedWinners = 0;
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
         document.addEventListener('DOMContentLoaded', async function() {
             isAdmin = checkAdminAccess();
+            
+            if (isAdmin) {
+                document.getElementById('mode-selector').classList.add('visible');
+            }
             
             if (SHEETS_URL) {
                 document.getElementById('sheets-url').value = SHEETS_URL;
@@ -1511,12 +1492,14 @@
 
         function updateSyncStatus(synced) {
             const statusEl = document.getElementById('sync-status');
-            if (synced) {
-                statusEl.innerHTML = '✓ Synced';
-                statusEl.className = 'sync-status synced';
-            } else {
-                statusEl.innerHTML = '⚠ Not synced';
-                statusEl.className = 'sync-status unsynced';
+            if (statusEl) {
+                if (synced) {
+                    statusEl.innerHTML = '✓ Synced';
+                    statusEl.className = 'sync-status synced';
+                } else {
+                    statusEl.innerHTML = '⚠ Not synced';
+                    statusEl.className = 'sync-status unsynced';
+                }
             }
         }
 
@@ -1525,9 +1508,6 @@
             const modeParam = urlParams.get('mode');
             
             if (modeParam === ADMIN_CODE) {
-                document.querySelectorAll('.admin-only').forEach(el => {
-                    el.classList.add('visible');
-                });
                 document.getElementById('admin-url').textContent = 
                     window.location.origin + window.location.pathname + '?mode=' + ADMIN_CODE;
                 document.getElementById('admin-code-input').value = ADMIN_CODE;
@@ -1550,9 +1530,6 @@
                   window.location.origin + window.location.pathname + '?mode=' + ADMIN_CODE);
         }
 
-        // ============================================
-        // MODE SWITCHING
-        // ============================================
         function switchMode(mode) {
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
@@ -1568,9 +1545,6 @@
             }
         }
 
-        // ============================================
-        // CONNECTION FUNCTIONS
-        // ============================================
         function saveAndConnect() {
             const url = document.getElementById('sheets-url').value.trim();
             if (!url) {
@@ -1630,9 +1604,6 @@
             }
         }
 
-        // ============================================
-        // SURVEY FUNCTIONS
-        // ============================================
         function renderSurvey() {
             const container = document.getElementById('survey-questions');
             container.innerHTML = questions.map((q, i) => {
@@ -1754,11 +1725,10 @@
             }
         }
 
-        // ============================================
-        // ADMIN FUNCTIONS
-        // ============================================
         function renderAdminPanel() {
             const container = document.getElementById('question-editors');
+            if (!container) return;
+            
             container.innerHTML = questions.map((q, i) => `
                 <div class="question-editor" id="editor-${i}">
                     <div class="question-editor-header">
@@ -1940,9 +1910,6 @@
             `).join('');
         }
 
-        // ============================================
-        // SCORING SYSTEM
-        // ============================================
         function calculatePlayerScores() {
             if (responses.length === 0) {
                 playerScores = [];
@@ -2034,9 +2001,6 @@
             `;
         }
 
-        // ============================================
-        // ANSWER NORMALIZATION & AGGREGATION
-        // ============================================
         function normalizeAnswer(answer) {
             if (!answer) return '';
             
@@ -2075,147 +2039,139 @@
         }
 
         function aggregateAnswers() {
-    // Load display name preferences
-    if (!window.mergeDisplayNames) {
-        window.mergeDisplayNames = JSON.parse(localStorage.getItem('mclaSays_mergeDisplayNames') || '{}');
-    }
-    
-    aggregatedResults = questions.map((q, qIndex) => {
-        const answerCounts = {};
-        
-        responses.forEach(response => {
-            if (response.answers && response.answers[qIndex]) {
-                const original = response.answers[qIndex];
-                const normalized = normalizeAnswer(original);
-                const mergeKey = getMergeKey(qIndex, normalized);
-                
-                if (!answerCounts[mergeKey]) {
-                    answerCounts[mergeKey] = { 
-                        original: original, 
-                        count: 0,
-                        variants: new Set()
-                    };
-                }
-                answerCounts[mergeKey].count++;
-                answerCounts[mergeKey].variants.add(original);
+            if (!window.mergeDisplayNames) {
+                window.mergeDisplayNames = JSON.parse(localStorage.getItem('mclaSays_mergeDisplayNames') || '{}');
             }
-        });
-
-        // Apply saved display names
-        const displayNames = window.mergeDisplayNames[qIndex] || {};
-        Object.keys(answerCounts).forEach(key => {
-            if (displayNames[key]) {
-                answerCounts[key].original = displayNames[key];
-            }
-        });
-
-        const sorted = Object.entries(answerCounts)
-            .sort((a, b) => b[1].count - a[1].count)
-            .map(([key, val]) => ({
-                key: key,
-                answer: val.original,
-                points: val.count,
-                variants: Array.from(val.variants)
-            }));
-
-        return { question: q.question, type: q.type, answers: sorted };
-    });
-}
-
-        // ============================================
-        // MERGE SELECTION FUNCTIONS (FIXED)
-        // ============================================
-        function renderResultsPreview() {
-    if (responses.length === 0) {
-        document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
-        return;
-    }
-
-    // Store answer keys globally for click handler
-    window.answerKeyMap = {};
-    aggregatedResults.forEach((q, qIdx) => {
-        window.answerKeyMap[qIdx] = {};
-        q.answers.forEach((a, aIdx) => {
-            window.answerKeyMap[qIdx][aIdx] = a.key;
-        });
-    });
-
-    document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => {
-        // Build merge info display
-        const qMergeRules = mergeRules[qIdx] || {};
-        const mergeEntries = Object.entries(qMergeRules);
-        let mergeInfoHtml = '';
-        
-        if (mergeEntries.length > 0) {
-            // Group by primary key
-            const mergeGroups = {};
-            mergeEntries.forEach(([from, to]) => {
-                if (!mergeGroups[to]) {
-                    mergeGroups[to] = [];
-                }
-                mergeGroups[to].push(from);
-            });
             
-            mergeInfoHtml = `
-                <div style="background: rgba(38, 222, 129, 0.2); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid var(--bright-green);">
-                    <strong style="color: var(--bright-green);">📎 Active Merges:</strong>
-                    ${Object.entries(mergeGroups).map(([primary, merged]) => `
-                        <div style="margin-top: 8px; padding: 5px 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
-                            <strong>"${primary}"</strong> ← ${merged.map(m => `"${m}"`).join(', ')}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+            aggregatedResults = questions.map((q, qIndex) => {
+                const answerCounts = {};
+                
+                responses.forEach(response => {
+                    if (response.answers && response.answers[qIndex]) {
+                        const original = response.answers[qIndex];
+                        const normalized = normalizeAnswer(original);
+                        const mergeKey = getMergeKey(qIndex, normalized);
+                        
+                        if (!answerCounts[mergeKey]) {
+                            answerCounts[mergeKey] = { 
+                                original: original, 
+                                count: 0,
+                                variants: new Set()
+                            };
+                        }
+                        answerCounts[mergeKey].count++;
+                        answerCounts[mergeKey].variants.add(original);
+                    }
+                });
+
+                const displayNames = window.mergeDisplayNames[qIndex] || {};
+                Object.keys(answerCounts).forEach(key => {
+                    if (displayNames[key]) {
+                        answerCounts[key].original = displayNames[key];
+                    }
+                });
+
+                const sorted = Object.entries(answerCounts)
+                    .sort((a, b) => b[1].count - a[1].count)
+                    .map(([key, val]) => ({
+                        key: key,
+                        answer: val.original,
+                        points: val.count,
+                        variants: Array.from(val.variants)
+                    }));
+
+                return { question: q.question, type: q.type, answers: sorted };
+            });
         }
-        
-        return `
-            <div class="result-question" data-question="${qIdx}">
-                <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
-                ${mergeInfoHtml}
-                ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
-                    <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
-                         data-question="${qIdx}"
-                         data-answer="${aIdx}"
-                         data-key="${a.key}"
-                         onclick="handleAnswerClick(${qIdx}, ${aIdx})"
-                         title="Variants: ${a.variants.join(', ')}">
-                        <span class="answer-text">
-                            ${a.answer}
-                            ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
-                        </span>
-                        <span class="answer-count">${a.points}</span>
+
+        function renderResultsPreview() {
+            if (responses.length === 0) {
+                document.getElementById('results-preview').innerHTML = '<p style="color: rgba(255,255,255,0.7);">No responses yet.</p>';
+                return;
+            }
+
+            window.answerKeyMap = {};
+            aggregatedResults.forEach((q, qIdx) => {
+                window.answerKeyMap[qIdx] = {};
+                q.answers.forEach((a, aIdx) => {
+                    window.answerKeyMap[qIdx][aIdx] = a.key;
+                });
+            });
+
+            document.getElementById('results-preview').innerHTML = aggregatedResults.map((q, qIdx) => {
+                const qMergeRules = mergeRules[qIdx] || {};
+                const mergeEntries = Object.entries(qMergeRules);
+                let mergeInfoHtml = '';
+                
+                if (mergeEntries.length > 0) {
+                    const mergeGroups = {};
+                    mergeEntries.forEach(([from, to]) => {
+                        if (!mergeGroups[to]) {
+                            mergeGroups[to] = [];
+                        }
+                        mergeGroups[to].push(from);
+                    });
+                    
+                    mergeInfoHtml = `
+                        <div style="background: rgba(38, 222, 129, 0.2); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid var(--bright-green);">
+                            <strong style="color: var(--bright-green);">📎 Active Merges:</strong>
+                            ${Object.entries(mergeGroups).map(([primary, merged]) => `
+                                <div style="margin-top: 8px; padding: 5px 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                                    <strong>"${primary}"</strong> ← ${merged.map(m => `"${m}"`).join(', ')}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="result-question" data-question="${qIdx}">
+                        <h4>Q${qIdx + 1}: ${q.question} <span class="type-badge ${q.type}">${q.type}</span></h4>
+                        ${mergeInfoHtml}
+                        ${q.answers.length > 0 ? q.answers.map((a, aIdx) => `
+                            <div class="result-answer ${isSelectedForMerge(qIdx, a.key) ? 'selected-for-merge' : ''}" 
+                                 data-question="${qIdx}"
+                                 data-answer="${aIdx}"
+                                 data-key="${a.key}"
+                                 onclick="handleAnswerClick(${qIdx}, ${aIdx})"
+                                 title="Variants: ${a.variants.join(', ')}">
+                                <span class="answer-text">
+                                    ${a.answer}
+                                    ${a.variants.length > 1 ? `<span style="color: rgba(255,255,255,0.5); font-size: 0.8em;"> (+${a.variants.length - 1} similar)</span>` : ''}
+                                </span>
+                                <span class="answer-count">${a.points}</span>
+                            </div>
+                        `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
+                        <div class="merge-controls">
+                            <button class="admin-btn small primary" onclick="mergeSelected(${qIdx})" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
+                                🔗 Merge Selected
+                            </button>
+                            <button class="admin-btn small secondary" onclick="clearSelection(${qIdx})">
+                                ✕ Clear Selection
+                            </button>
+                            ${mergeEntries.length > 0 ? `<button class="admin-btn small secondary" onclick="clearMergesForQuestion(${qIdx})">↩️ Undo Merges</button>` : ''}
+                            <span class="selection-count" id="selection-count-${qIdx}">
+                                ${getSelectionCount(qIdx)} selected
+                            </span>
+                        </div>
                     </div>
-                `).join('') : '<p style="color: rgba(255,255,255,0.5);">No answers yet</p>'}
-                <div class="merge-controls">
-                    <button class="admin-btn small primary" onclick="mergeSelected(${qIdx})" ${!hasMultipleSelected(qIdx) ? 'disabled' : ''}>
-                        🔗 Merge Selected
-                    </button>
-                    <button class="admin-btn small secondary" onclick="clearSelection(${qIdx})">
-                        ✕ Clear Selection
-                    </button>
-                    ${mergeEntries.length > 0 ? `<button class="admin-btn small secondary" onclick="clearMergesForQuestion(${qIdx})">↩️ Undo Merges</button>` : ''}
-                    <span class="selection-count" id="selection-count-${qIdx}">
-                        ${getSelectionCount(qIdx)} selected
-                    </span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+                `;
+            }).join('');
+        }
+
         function clearMergesForQuestion(qIdx) {
-    if (confirm('Clear all merges for this question?')) {
-        delete mergeRules[qIdx];
-        localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
-        aggregateAnswers();
-        renderResultsPreview();
-        calculatePlayerScores();
-        renderAdminLeaderboard();
-    }
-}
+            if (confirm('Clear all merges for this question?')) {
+                delete mergeRules[qIdx];
+                localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+                aggregateAnswers();
+                renderResultsPreview();
+                calculatePlayerScores();
+                renderAdminLeaderboard();
+            }
+        }
 
         function handleAnswerClick(qIdx, aIdx) {
             const key = window.answerKeyMap[qIdx][aIdx];
-            console.log('Clicked Q' + qIdx + ', A' + aIdx + ', Key: ' + key);
             toggleMergeSelection(qIdx, key);
         }
 
@@ -2243,14 +2199,10 @@
                 selectedForMerge[qIdx].push(key);
             }
             
-            console.log('Selected for merge:', selectedForMerge[qIdx]);
-            
-            // Update visuals WITHOUT re-aggregating
             updateMergeVisuals(qIdx);
         }
 
         function updateMergeVisuals(qIdx) {
-            // Update answer highlights
             const answers = document.querySelectorAll(`.result-answer[data-question="${qIdx}"]`);
             answers.forEach(el => {
                 const key = el.dataset.key;
@@ -2261,7 +2213,6 @@
                 }
             });
             
-            // Update merge button
             const questionEl = document.querySelector(`.result-question[data-question="${qIdx}"]`);
             if (questionEl) {
                 const mergeBtn = questionEl.querySelector('.admin-btn.primary');
@@ -2269,7 +2220,6 @@
                     mergeBtn.disabled = !hasMultipleSelected(qIdx);
                 }
                 
-                // Update count
                 const countEl = document.getElementById(`selection-count-${qIdx}`);
                 if (countEl) {
                     countEl.textContent = getSelectionCount(qIdx) + ' selected';
@@ -2283,49 +2233,45 @@
         }
 
         function mergeSelected(qIdx) {
-    if (!hasMultipleSelected(qIdx)) {
-        alert('Select at least 2 answers to merge');
-        return;
-    }
-    
-    const selected = selectedForMerge[qIdx];
-    const primaryKey = selected[0];
-    
-    // Find the display text for the primary answer
-    const primaryAnswer = aggregatedResults[qIdx].answers.find(a => a.key === primaryKey);
-    const primaryDisplayName = primaryAnswer ? primaryAnswer.answer : primaryKey;
-    
-    if (!mergeRules[qIdx]) {
-        mergeRules[qIdx] = {};
-    }
-    
-    // Store both the key mapping AND the display name
-    for (let i = 1; i < selected.length; i++) {
-        mergeRules[qIdx][selected[i]] = primaryKey;
-    }
-    
-    // Store display name preference
-    if (!window.mergeDisplayNames) {
-        window.mergeDisplayNames = JSON.parse(localStorage.getItem('mclaSays_mergeDisplayNames') || '{}');
-    }
-    if (!window.mergeDisplayNames[qIdx]) {
-        window.mergeDisplayNames[qIdx] = {};
-    }
-    window.mergeDisplayNames[qIdx][primaryKey] = primaryDisplayName;
-    localStorage.setItem('mclaSays_mergeDisplayNames', JSON.stringify(window.mergeDisplayNames));
-    
-    localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
-    
-    selectedForMerge[qIdx] = [];
-    
-    console.log('Merged! Primary:', primaryDisplayName);
-    alert('Merged ' + selected.length + ' answers into "' + primaryDisplayName + '"!');
-    
-    aggregateAnswers();
-    renderResultsPreview();
-    calculatePlayerScores();
-    renderAdminLeaderboard();
-}
+            if (!hasMultipleSelected(qIdx)) {
+                alert('Select at least 2 answers to merge');
+                return;
+            }
+            
+            const selected = selectedForMerge[qIdx];
+            const primaryKey = selected[0];
+            
+            const primaryAnswer = aggregatedResults[qIdx].answers.find(a => a.key === primaryKey);
+            const primaryDisplayName = primaryAnswer ? primaryAnswer.answer : primaryKey;
+            
+            if (!mergeRules[qIdx]) {
+                mergeRules[qIdx] = {};
+            }
+            
+            for (let i = 1; i < selected.length; i++) {
+                mergeRules[qIdx][selected[i]] = primaryKey;
+            }
+            
+            if (!window.mergeDisplayNames) {
+                window.mergeDisplayNames = JSON.parse(localStorage.getItem('mclaSays_mergeDisplayNames') || '{}');
+            }
+            if (!window.mergeDisplayNames[qIdx]) {
+                window.mergeDisplayNames[qIdx] = {};
+            }
+            window.mergeDisplayNames[qIdx][primaryKey] = primaryDisplayName;
+            localStorage.setItem('mclaSays_mergeDisplayNames', JSON.stringify(window.mergeDisplayNames));
+            
+            localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+            
+            selectedForMerge[qIdx] = [];
+            
+            alert('Merged ' + selected.length + ' answers into "' + primaryDisplayName + '"!');
+            
+            aggregateAnswers();
+            renderResultsPreview();
+            calculatePlayerScores();
+            renderAdminLeaderboard();
+        }
 
         function clearMerges() {
             if (confirm('Clear all answer merges?')) {
@@ -2338,9 +2284,6 @@
             }
         }
 
-        // ============================================
-        // GAME FUNCTIONS
-        // ============================================
         function initGame() {
             if (responses.length === 0) {
                 document.getElementById('game-question').textContent = 'No responses loaded! Go to Admin Panel and click "Refresh Responses"';
@@ -2358,80 +2301,80 @@
         }
 
         function renderGameQuestion() {
-    if (showingWinners) {
-        renderWinnersScreen();
-        return;
-    }
+            if (showingWinners) {
+                renderWinnersScreen();
+                return;
+            }
 
-    const q = aggregatedResults[currentGameQuestion];
-    revealedAnswers = new Array(q.answers.length).fill(false);
+            const q = aggregatedResults[currentGameQuestion];
+            revealedAnswers = new Array(q.answers.length).fill(false);
 
-    document.getElementById('game-question').textContent = q.question;
-    
-    const board = document.getElementById('game-board');
-    
-    // Calculate rows needed for 2 columns, filling top-to-bottom
-    const numRows = Math.ceil(q.answers.length / 2);
-    
-    board.style.display = 'grid';
-    board.style.gridTemplateColumns = '1fr 1fr';
-    board.style.gridTemplateRows = `repeat(${numRows}, auto)`;
-    board.style.gridAutoFlow = 'column';
-    board.style.gap = '10px';
-    
-    board.innerHTML = q.answers.map((a, i) => `
-        <div class="answer-row" id="answer-row-${i}" onclick="revealAnswer(${i})">
-            <div class="answer-number">${i + 1}</div>
-            <div class="answer-content">
-                <span class="answer-text-display">
-                    <span class="answer-hidden" id="answer-text-${i}">████</span>
-                </span>
-                <span class="answer-points" id="answer-points-${i}" style="visibility: hidden;">${a.points}</span>
-            </div>
-        </div>
-    `).join('');
-
-    updateNavButtons();
-    updateQuestionNav();
-}
-
-function renderWinnersScreen() {
-    document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
-    
-    const board = document.getElementById('game-board');
-    board.style.display = 'block';
-    board.style.maxWidth = '700px';
-    board.style.gridTemplateColumns = '1fr';
-    board.style.gridAutoFlow = 'row';
-    
-    let currentRank = 1;
-    const rankedScores = playerScores.slice(0, 10).map((player, idx) => {
-        if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
-            currentRank = idx + 1;
-        }
-        return { ...player, rank: currentRank };
-    });
-
-    board.innerHTML = `
-        <div class="winners-display">
-            <div class="trophy-icon">🏆</div>
-            <div class="winners-title">Top Players</div>
-            <div class="winners-subtitle">${responses.length} players competed!</div>
-            ${rankedScores.map((player, idx) => `
-                <div class="winner-card ${idx === 0 ? 'first-place' : ''}" id="winner-${idx}">
-                    <span class="winner-rank">${player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '#' + player.rank}</span>
-                    <span class="winner-name">${player.name}</span>
-                    <span class="winner-score">${player.totalScore} pts</span>
+            document.getElementById('game-question').textContent = q.question;
+            
+            const board = document.getElementById('game-board');
+            
+            const numRows = Math.ceil(q.answers.length / 2);
+            
+            board.style.display = 'grid';
+            board.style.gridTemplateColumns = '1fr 1fr';
+            board.style.gridTemplateRows = `repeat(${numRows}, auto)`;
+            board.style.gridAutoFlow = 'column';
+            board.style.gap = '10px';
+            board.style.maxWidth = '1000px';
+            
+            board.innerHTML = q.answers.map((a, i) => `
+                <div class="answer-row" id="answer-row-${i}" onclick="revealAnswer(${i})">
+                    <div class="answer-number">${i + 1}</div>
+                    <div class="answer-content">
+                        <span class="answer-text-display">
+                            <span class="answer-hidden" id="answer-text-${i}">████</span>
+                        </span>
+                        <span class="answer-points" id="answer-points-${i}" style="visibility: hidden;">${a.points}</span>
+                    </div>
                 </div>
-            `).join('')}
-        </div>
-    `;
+            `).join('');
 
-    updateNavButtons();
-    updateQuestionNav();
-}
+            updateNavButtons();
+            updateQuestionNav();
+        }
 
-function revealAnswer(index) {
+        function renderWinnersScreen() {
+            document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
+            
+            const board = document.getElementById('game-board');
+            board.style.display = 'block';
+            board.style.maxWidth = '700px';
+            board.style.gridTemplateColumns = '1fr';
+            board.style.gridAutoFlow = 'row';
+            
+            let currentRank = 1;
+            const rankedScores = playerScores.slice(0, 10).map((player, idx) => {
+                if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
+                    currentRank = idx + 1;
+                }
+                return { ...player, rank: currentRank };
+            });
+
+            board.innerHTML = `
+                <div class="winners-display">
+                    <div class="trophy-icon">🏆</div>
+                    <div class="winners-title">Top Players</div>
+                    <div class="winners-subtitle">${responses.length} players competed!</div>
+                    ${rankedScores.map((player, idx) => `
+                        <div class="winner-card ${idx === 0 ? 'first-place' : ''}" id="winner-${idx}">
+                            <span class="winner-rank">${player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '#' + player.rank}</span>
+                            <span class="winner-name">${player.name}</span>
+                            <span class="winner-score">${player.totalScore} pts</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            updateNavButtons();
+            updateQuestionNav();
+        }
+
+        function revealAnswer(index) {
             if (showingWinners) return;
             if (revealedAnswers[index]) return;
             const q = aggregatedResults[currentGameQuestion];
