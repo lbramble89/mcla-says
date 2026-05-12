@@ -1661,7 +1661,21 @@ function updateSurveyStatusDisplay() {
             }
         }
 
-        function renderSurvey() {
+function renderSurvey() {
+    if (localStorage.getItem('mclaSays_surveyClosed') === 'true') {
+        document.getElementById('survey-questions').innerHTML = '';
+        document.getElementById('submit-btn').style.display = 'none';
+        document.querySelector('.name-input-section').style.display = 'none';
+        document.getElementById('success-message').style.display = 'block';
+        document.getElementById('success-message').innerHTML = `
+            <div class="checkmark">🔒</div>
+            <h2>Survey Closed</h2>
+            <p>This survey is no longer accepting responses.<br>Thanks for your interest!</p>
+        `;
+        return;
+    }
+    
+    // ... rest of existing renderSurvey code
             const container = document.getElementById('survey-questions');
             container.innerHTML = questions.map((q, i) => {
                 let inputHtml = '';
