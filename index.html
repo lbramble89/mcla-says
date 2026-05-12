@@ -28,6 +28,35 @@
             min-height: 100vh;
             color: white;
         }
+        <svg style="display: none;">
+    <symbol id="judge-cat" viewBox="0 0 100 100">
+        <circle cx="50" cy="55" r="30" fill="#FFA94D"/>
+        <polygon points="25,35 35,55 15,50" fill="#FFA94D"/>
+        <polygon points="75,35 65,55 85,50" fill="#FFA94D"/>
+        <polygon points="27,38 33,52 19,48" fill="#FFD8A8"/>
+        <polygon points="73,38 67,52 81,48" fill="#FFD8A8"/>
+        <ellipse cx="50" cy="32" rx="32" ry="15" fill="#E9ECEF"/>
+        <circle cx="25" cy="38" r="8" fill="#E9ECEF"/>
+        <circle cx="75" cy="38" r="8" fill="#E9ECEF"/>
+        <circle cx="18" cy="45" r="6" fill="#E9ECEF"/>
+        <circle cx="82" cy="45" r="6" fill="#E9ECEF"/>
+        <ellipse cx="50" cy="25" rx="25" ry="10" fill="#DEE2E6"/>
+        <ellipse cx="40" cy="52" rx="5" ry="6" fill="#2D3436"/>
+        <ellipse cx="60" cy="52" rx="5" ry="6" fill="#2D3436"/>
+        <circle cx="42" cy="50" r="2" fill="white"/>
+        <circle cx="62" cy="50" r="2" fill="white"/>
+        <ellipse cx="50" cy="62" rx="4" ry="3" fill="#E17055"/>
+        <path d="M 46 67 Q 50 72 54 67" stroke="#2D3436" stroke-width="2" fill="none"/>
+        <line x1="30" y1="60" x2="15" y2="55" stroke="#2D3436" stroke-width="1.5"/>
+        <line x1="30" y1="64" x2="15" y2="64" stroke="#2D3436" stroke-width="1.5"/>
+        <line x1="30" y1="68" x2="15" y2="73" stroke="#2D3436" stroke-width="1.5"/>
+        <line x1="70" y1="60" x2="85" y2="55" stroke="#2D3436" stroke-width="1.5"/>
+        <line x1="70" y1="64" x2="85" y2="64" stroke="#2D3436" stroke-width="1.5"/>
+        <line x1="70" y1="68" x2="85" y2="73" stroke="#2D3436" stroke-width="1.5"/>
+        <rect x="78" y="75" width="20" height="6" rx="2" fill="#8B4513" transform="rotate(-30 88 78)"/>
+        <rect x="92" y="68" width="10" height="12" rx="2" fill="#A0522D" transform="rotate(-30 97 74)"/>
+    </symbol>
+</svg>
 
         .mode-selector {
             display: flex;
@@ -2354,18 +2383,43 @@
     updateQuestionNav();
 }
 
-       function renderWinnersScreen() {
+function renderWinnersScreen() {
     document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
     
-    // Reset board styles from game view
     const board = document.getElementById('game-board');
     board.style.display = 'block';
     board.style.maxWidth = '700px';
+    board.style.gridTemplateColumns = '1fr';
+    board.style.gridAutoFlow = 'row';
     
     let currentRank = 1;
-    // ... rest of the function stays the same
+    const rankedScores = playerScores.slice(0, 10).map((player, idx) => {
+        if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
+            currentRank = idx + 1;
+        }
+        return { ...player, rank: currentRank };
+    });
 
-        function revealAnswer(index) {
+    board.innerHTML = `
+        <div class="winners-display">
+            <div class="trophy-icon">🏆</div>
+            <div class="winners-title">Top Players</div>
+            <div class="winners-subtitle">${responses.length} players competed!</div>
+            ${rankedScores.map((player, idx) => `
+                <div class="winner-card ${idx === 0 ? 'first-place' : ''}" id="winner-${idx}">
+                    <span class="winner-rank">${player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '#' + player.rank}</span>
+                    <span class="winner-name">${player.name}</span>
+                    <span class="winner-score">${player.totalScore} pts</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    updateNavButtons();
+    updateQuestionNav();
+}
+
+function revealAnswer(index) {
             if (showingWinners) return;
             if (revealedAnswers[index]) return;
             const q = aggregatedResults[currentGameQuestion];
