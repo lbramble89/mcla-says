@@ -2328,10 +2328,11 @@
             revealedAnswers = new Array(q.answers.length).fill(false);
 
 let questionHTML = q.question;
-if (q.options && q.options.length > 0) {
+const originalQ = questions[currentGameQuestion];
+if (originalQ && originalQ.options && originalQ.options.length > 0) {
     questionHTML += `
         <div class="game-question-options">
-            ${q.options.map((opt, i) => `
+            ${originalQ.options.map((opt, i) => `
                 <span class="game-option">${String.fromCharCode(65 + i)}. ${opt}</span>
             `).join('')}
         </div>
