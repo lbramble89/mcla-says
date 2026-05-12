@@ -2441,25 +2441,52 @@ function revealNext() {
     }
 }
 
-        function revealNextWinner() {
-            const winnerCards = document.querySelectorAll('.winner-card');
-            const totalWinners = winnerCards.length;
-            
-            if (revealedWinners < totalWinners) {
-                const revealIdx = totalWinners - 1 - revealedWinners;
-                const winnerCard = document.getElementById(`winner-${revealIdx}`);
-                if (winnerCard) {
-                    winnerCard.classList.add('revealed');
-                    const isFirstPlace = winnerCard.classList.contains('first-place');
-                    playWinnerSound(isFirstPlace ? 0 : revealIdx);
-                    
-                    if (isFirstPlace) {
-                        setTimeout(launchConfetti, 300);
-                    }
-                }
-                revealedWinners++;
-            }
+function revealNextWinner() {
+    const winnerCards = document.querySelectorAll('.winner-card');
+    const totalWinners = winnerCards.length;
+    
+    if (revealedWinners >= totalWinners) return;
+    
+    // Calculate ranked scores to check for ties
+    let currentRank = 1;
+    const rankedScores = playerScores.slice(0, 5).map((player, idx) => {
+        if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
+            currentRank = idx + 1;
         }
+        return { ...player, rank: currentRank };
+    });
+    
+    // Find the next unrevealed winner (from bottom)
+    const revealIdx = totalWinners - 1 - revealedWinners;
+    const currentRankToReveal = rankedScores[revealIdx].rank;
+    
+    // Find all players with the same rank (tied)
+    const indicesToReveal = [];
+    for (let i = 0; i < totalWinners; i++) {
+        if (rankedScores[i].rank === currentRankToReveal) {
+            indicesToReveal.push(i);
+        }
+    }
+    
+    // Reveal all tied players at once
+    indicesToReveal.forEach(idx => {
+        const winnerCard = document.getElementById(`winner-${idx}`);
+        if (winnerCard) {
+            winnerCard.classList.add('revealed');
+        }
+    });
+    
+    // Play sound based on rank
+    const isFirstPlace = currentRankToReveal === 1;
+    playWinnerSound(isFirstPlace ? 0 : revealIdx);
+    
+    if (isFirstPlace) {
+        setTimeout(launchConfetti, 300);
+    }
+    
+    // Increment by the number of tied players revealed
+    revealedWinners += indicesToReveal.length;
+}
 
 function revealAll() {
     if (showingWinners) {
