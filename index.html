@@ -739,82 +739,89 @@
             border: 3px solid var(--mcla-light);
         }
 
-        .game-board {
-            background: linear-gradient(180deg, var(--mcla-blue) 0%, var(--mcla-dark) 100%);
-            border: 8px solid var(--mcla-light);
-            border-radius: 20px;
-            padding: 30px;
-            width: 100%;
-            max-width: 700px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(94, 179, 228, 0.1);
-            margin-top: 30px;
-        }
+       .game-board {
+    background: linear-gradient(180deg, var(--mcla-blue) 0%, var(--mcla-dark) 100%);
+    border: 8px solid var(--mcla-light);
+    border-radius: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 60px rgba(94, 179, 228, 0.1);
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+@media (min-width: 1200px) {
+    .game-board {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-board {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+}
 
         .answer-row {
-            display: flex;
-            align-items: center;
-            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
-            border: 3px solid var(--mcla-light);
-            border-radius: 10px;
-            margin-bottom: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+    display: flex;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+    border: 3px solid var(--mcla-light);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 60px;
+}
 
-        .answer-row:hover {
-            border-color: var(--bright-yellow);
-            transform: scale(1.01);
-        }
+.answer-number {
+    background: var(--bright-orange);
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px 15px;
+    min-width: 45px;
+    text-align: center;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .answer-row.revealed {
-            background: linear-gradient(180deg, rgba(38, 222, 129, 0.3) 0%, rgba(38, 222, 129, 0.1) 100%);
-            border-color: var(--bright-green);
-        }
+.answer-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 10px;
+}
 
-        .answer-number {
-            background: var(--bright-orange);
-            color: white;
-            font-size: 1.5em;
-            font-weight: bold;
-            padding: 15px 20px;
-            min-width: 60px;
-            text-align: center;
-        }
+.answer-text-display {
+    font-size: 1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex: 1;
+    word-break: break-word;
+}
 
-        .answer-content {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-        }
-
-        .answer-text-display {
-            font-size: 1.3em;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .answer-hidden {
-            background: rgba(255,255,255,0.2);
-            color: rgba(255,255,255,0.2);
-            padding: 5px 20px;
-            border-radius: 5px;
-            font-size: 1.3em;
-        }
-
-        .answer-points {
-            background: var(--bright-yellow);
-            color: var(--mcla-dark);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 1.3em;
-            font-weight: bold;
-            min-width: 80px;
-            text-align: center;
-        }
+.answer-points {
+    background: var(--bright-yellow);
+    color: var(--mcla-dark);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: bold;
+    min-width: 50px;
+    text-align: center;
+    flex-shrink: 0;
+}
 
         .game-controls {
             display: flex;
@@ -2043,41 +2050,52 @@
         }
 
         function aggregateAnswers() {
-            // DON'T clear selectedForMerge here!
-            
-            aggregatedResults = questions.map((q, qIndex) => {
-                const answerCounts = {};
+    // Load display name preferences
+    if (!window.mergeDisplayNames) {
+        window.mergeDisplayNames = JSON.parse(localStorage.getItem('mclaSays_mergeDisplayNames') || '{}');
+    }
+    
+    aggregatedResults = questions.map((q, qIndex) => {
+        const answerCounts = {};
+        
+        responses.forEach(response => {
+            if (response.answers && response.answers[qIndex]) {
+                const original = response.answers[qIndex];
+                const normalized = normalizeAnswer(original);
+                const mergeKey = getMergeKey(qIndex, normalized);
                 
-                responses.forEach(response => {
-                    if (response.answers && response.answers[qIndex]) {
-                        const original = response.answers[qIndex];
-                        const normalized = normalizeAnswer(original);
-                        const mergeKey = getMergeKey(qIndex, normalized);
-                        
-                        if (!answerCounts[mergeKey]) {
-                            answerCounts[mergeKey] = { 
-                                original: original, 
-                                count: 0,
-                                variants: new Set()
-                            };
-                        }
-                        answerCounts[mergeKey].count++;
-                        answerCounts[mergeKey].variants.add(original);
-                    }
-                });
+                if (!answerCounts[mergeKey]) {
+                    answerCounts[mergeKey] = { 
+                        original: original, 
+                        count: 0,
+                        variants: new Set()
+                    };
+                }
+                answerCounts[mergeKey].count++;
+                answerCounts[mergeKey].variants.add(original);
+            }
+        });
 
-                const sorted = Object.entries(answerCounts)
-                    .sort((a, b) => b[1].count - a[1].count)
-                    .map(([key, val]) => ({
-                        key: key,
-                        answer: val.original,
-                        points: val.count,
-                        variants: Array.from(val.variants)
-                    }));
+        // Apply saved display names
+        const displayNames = window.mergeDisplayNames[qIndex] || {};
+        Object.keys(answerCounts).forEach(key => {
+            if (displayNames[key]) {
+                answerCounts[key].original = displayNames[key];
+            }
+        });
 
-                return { question: q.question, type: q.type, answers: sorted };
-            });
-        }
+        const sorted = Object.entries(answerCounts)
+            .sort((a, b) => b[1].count - a[1].count)
+            .map(([key, val]) => ({
+                key: key,
+                answer: val.original,
+                points: val.count,
+                variants: Array.from(val.variants)
+            }));
+
+        return { question: q.question, type: q.type, answers: sorted };
+    });
+}
 
         // ============================================
         // MERGE SELECTION FUNCTIONS (FIXED)
@@ -2240,36 +2258,49 @@
         }
 
         function mergeSelected(qIdx) {
-            if (!hasMultipleSelected(qIdx)) {
-                alert('Select at least 2 answers to merge');
-                return;
-            }
-            
-            const selected = selectedForMerge[qIdx];
-            const primaryKey = selected[0];
-            
-            if (!mergeRules[qIdx]) {
-                mergeRules[qIdx] = {};
-            }
-            
-            for (let i = 1; i < selected.length; i++) {
-                mergeRules[qIdx][selected[i]] = primaryKey;
-            }
-            
-            localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
-            
-            // Clear selection
-            selectedForMerge[qIdx] = [];
-            
-            console.log('Merged! Rules:', mergeRules[qIdx]);
-            alert('Merged ' + selected.length + ' answers into one!');
-            
-            // Re-aggregate and re-render
-            aggregateAnswers();
-            renderResultsPreview();
-            calculatePlayerScores();
-            renderAdminLeaderboard();
-        }
+    if (!hasMultipleSelected(qIdx)) {
+        alert('Select at least 2 answers to merge');
+        return;
+    }
+    
+    const selected = selectedForMerge[qIdx];
+    const primaryKey = selected[0];
+    
+    // Find the display text for the primary answer
+    const primaryAnswer = aggregatedResults[qIdx].answers.find(a => a.key === primaryKey);
+    const primaryDisplayName = primaryAnswer ? primaryAnswer.answer : primaryKey;
+    
+    if (!mergeRules[qIdx]) {
+        mergeRules[qIdx] = {};
+    }
+    
+    // Store both the key mapping AND the display name
+    for (let i = 1; i < selected.length; i++) {
+        mergeRules[qIdx][selected[i]] = primaryKey;
+    }
+    
+    // Store display name preference
+    if (!window.mergeDisplayNames) {
+        window.mergeDisplayNames = JSON.parse(localStorage.getItem('mclaSays_mergeDisplayNames') || '{}');
+    }
+    if (!window.mergeDisplayNames[qIdx]) {
+        window.mergeDisplayNames[qIdx] = {};
+    }
+    window.mergeDisplayNames[qIdx][primaryKey] = primaryDisplayName;
+    localStorage.setItem('mclaSays_mergeDisplayNames', JSON.stringify(window.mergeDisplayNames));
+    
+    localStorage.setItem('mclaSays_mergeRules', JSON.stringify(mergeRules));
+    
+    selectedForMerge[qIdx] = [];
+    
+    console.log('Merged! Primary:', primaryDisplayName);
+    alert('Merged ' + selected.length + ' answers into "' + primaryDisplayName + '"!');
+    
+    aggregateAnswers();
+    renderResultsPreview();
+    calculatePlayerScores();
+    renderAdminLeaderboard();
+}
 
         function clearMerges() {
             if (confirm('Clear all answer merges?')) {
@@ -2302,43 +2333,32 @@
         }
 
         function renderGameQuestion() {
-            if (showingWinners) {
-                renderWinnersScreen();
-                return;
-            }
+    if (showingWinners) {
+        renderWinnersScreen();
+        return;
+    }
 
-            const q = aggregatedResults[currentGameQuestion];
-            revealedAnswers = new Array(q.answers.length).fill(false);
+    const q = aggregatedResults[currentGameQuestion];
+    revealedAnswers = new Array(q.answers.length).fill(false);
 
-            document.getElementById('game-question').textContent = q.question;
-            
-            const board = document.getElementById('game-board');
-            board.innerHTML = q.answers.map((a, i) => `
-                <div class="answer-row" id="answer-row-${i}" onclick="revealAnswer(${i})">
-                    <div class="answer-number">${i + 1}</div>
-                    <div class="answer-content">
-                        <span class="answer-text-display">
-                            <span class="answer-hidden" id="answer-text-${i}">████████</span>
-                        </span>
-                        <span class="answer-points" id="answer-points-${i}" style="visibility: hidden;">${a.points}</span>
-                    </div>
-                </div>
-            `).join('');
+    document.getElementById('game-question').textContent = q.question;
+    
+    const board = document.getElementById('game-board');
+    board.innerHTML = q.answers.map((a, i) => `
+        <div class="answer-row" id="answer-row-${i}" onclick="revealAnswer(${i})">
+            <div class="answer-number">${i + 1}</div>
+            <div class="answer-content">
+                <span class="answer-text-display">
+                    <span class="answer-hidden" id="answer-text-${i}">████</span>
+                </span>
+                <span class="answer-points" id="answer-points-${i}" style="visibility: hidden;">${a.points}</span>
+            </div>
+        </div>
+    `).join('');
 
-            for (let i = q.answers.length; i < 8; i++) {
-                board.innerHTML += `
-                    <div class="answer-row" style="opacity: 0.3; cursor: default;">
-                        <div class="answer-number">${i + 1}</div>
-                        <div class="answer-content">
-                            <span class="answer-text-display"><span class="answer-hidden">—</span></span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            updateNavButtons();
-            updateQuestionNav();
-        }
+    updateNavButtons();
+    updateQuestionNav();
+}
 
         function renderWinnersScreen() {
             document.getElementById('game-question').innerHTML = '🏆 THE RESULTS ARE IN! 🏆';
