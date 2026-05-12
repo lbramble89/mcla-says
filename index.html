@@ -30,22 +30,30 @@
         }
     
 
-        .mode-selector {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            padding: 20px 30px;
-            background: rgba(0,0,0,0.3);
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 10;
-        }
+.mode-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 30px;
+    background: rgba(0,0,0,0.3);
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
+}
 
-        .logo-small {
-            height: 50px;
-            margin-right: 20px;
-        }
+.logo-small {
+    height: 50px;
+    margin-right: 0;
+}
+
+.mode-selector:not(:has(.visible)) .logo-small {
+    display: none;
+}
+
+.mode-selector:not(:has(.visible)) {
+    display: none;
+}
 
         .mode-btn {
             padding: 15px 30px;
@@ -1271,8 +1279,7 @@
             </div>
 
            <div class="survey-header">
-   <h1><svg class="judge-cat-icon" width="50" height="50"><use href="#judge-cat"/></svg> MCLA <span>Says!</span></h1>
-</div>
+ <h1><svg class="judge-cat-icon" width="50" height="50"><use xlink:href="#judge-cat"/></svg> MCLA <span>Says!</span></h1>
 
 <div class="name-input-section">
                 <h3>👤 Your Full Name</h3>
@@ -1384,10 +1391,10 @@
         <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         <div class="game-container">
             <div class="game-header">
-                <div class="game-title">
-    <svg class="judge-cat-icon" width="60" height="60"><use href="#judge-cat"/></svg>
+<div class="game-title">
+    <svg class="judge-cat-icon" width="60" height="60"><use xlink:href="#judge-cat"/></svg>
     MCLA <span>Says!</span>
-    <svg class="judge-cat-icon" width="60" height="60"><use href="#judge-cat"/></svg>
+    <svg class="judge-cat-icon" width="60" height="60"><use xlink:href="#judge-cat"/></svg>
 </div>
                 
                 <div class="question-display" id="game-question">Loading...</div>
