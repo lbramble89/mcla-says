@@ -2348,7 +2348,7 @@
             board.style.gridAutoFlow = 'row';
             
             let currentRank = 1;
-            const rankedScores = playerScores.slice(0, 10).map((player, idx) => {
+            const rankedScores = playerScores.slice(0, 5).map((player, idx) => {
                 if (idx > 0 && player.totalScore < playerScores[idx - 1].totalScore) {
                     currentRank = idx + 1;
                 }
